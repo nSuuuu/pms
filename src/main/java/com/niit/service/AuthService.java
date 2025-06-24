@@ -53,12 +53,12 @@ public class AuthService {
         }
 
         // 设置默认值
-        user.setGender(Gender.男);
-        user.setProvince("未知");
-        user.setCity("未知");
-        user.setIdCard("");
-        user.setRealName("");
-        user.setRole(roleType);
+        user.setGender(Gender.男); // 默认性别
+        user.setProvince("未知"); // 默认省份
+        user.setCity("未知");     // 默认城市
+        user.setIdCard("");      // 默认空身份证
+        user.setRealName("");    // 真实姓名默认为空，后续完善
+        user.setRole(roleType);  // 设置角色
 
         // 加密密码
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -70,13 +70,19 @@ public class AuthService {
         if (roleType == 1) { // 老师
             Teacher teacher = new Teacher();
             teacher.setUserId(user.getId());
-            teacher.setSchoolLevel(extraInfo); // 设置教学阶段
-            teacher.setScore(5.0f);
+            teacher.setScore(5.0f); // 默认评分5分
+            teacher.setPrice(100); // 默认价格100元/小时
+            teacher.setGradeLevel("高中"); // 默认年级
+            teacher.setSubjects("数学"); // 默认科目
+            teacher.setEducation("本科"); // 默认学历
+            teacher.setStyle("耐心细致，因材施教"); // 默认教学风格
+            teacher.setExperience("新老师，正在积累教学经验"); // 默认教学经验
+            teacher.setAvatar("https://via.placeholder.com/80x80?text=头像"); // 默认头像
             teacherMapper.insert(teacher);
         } else if (roleType == 2) { // 学生
             Student student = new Student();
             student.setUserId(user.getId());
-            student.setGrade(extraInfo); // 设置年级
+            student.setGrade(extraInfo); // 使用extraInfo作为年级
             studentMapper.insert(student);
         }
 
