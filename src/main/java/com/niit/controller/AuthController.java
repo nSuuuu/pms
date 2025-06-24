@@ -11,11 +11,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @Controller
 public class AuthController {
     @Autowired
     private AuthService authService;
+
+    @GetMapping("/")
+    public String home() {
+        return "index";
+    }
 
     @GetMapping("/login")
     public String loginPage() {
@@ -31,15 +35,7 @@ public class AuthController {
         try {
             User user = authService.login(phone, password);
             session.setAttribute("user", user);
-
-            // 根据角色跳转到不同页面
-            if (user.getRole() == 0) {
-                return "redirect:/admin/dashboard";
-            } else if (user.getRole() == 1) {
-                return "redirect:/teacher/dashboard";
-            } else {
-                return "redirect:/student/dashboard";
-            }
+            return "redirect:/";
         } catch (BusinessException e) {
             model.addAttribute("error", e.getMessage());
             return "login";
@@ -82,5 +78,75 @@ public class AuthController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/login";
+    }
+
+    @GetMapping("/student/profile")
+    public String studentProfilePage(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null || user.getRole() != 2) {
+            return "redirect:/login";
+        }
+        model.addAttribute("user", user);
+        return "student_profile";
+    }
+
+    @PostMapping("/student/profile")
+    public String updateStudentProfile(@RequestParam String realName,
+                                       @RequestParam String gender,
+                                       @RequestParam String idCard,
+                                       @RequestParam String province,
+                                       @RequestParam String city,
+                                       @RequestParam String grade,
+                                       @RequestParam String needs,
+                                       HttpSession session,
+                                       Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null || user.getRole() != 2) {
+            return "redirect:/login";
+        }
+        try {
+            authService.updateStudentProfile(user.getId(), realName, gender, idCard, province, city, grade, needs);
+            model.addAttribute("success", "资料完善成功");
+        } catch (BusinessException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        model.addAttribute("user", user);
+        return "student_profile";
+    }
+
+    @GetMapping("/teacher/profile")
+    public String teacherProfilePage(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null || user.getRole() != 1) {
+            return "redirect:/login";
+        }
+        model.addAttribute("user", user);
+        return "teacher_profile";
+    }
+
+    @PostMapping("/teacher/profile")
+    public String updateTeacherProfile(@RequestParam String realName,
+                                       @RequestParam String gender,
+                                       @RequestParam String idCard,
+                                       @RequestParam String province,
+                                       @RequestParam String city,
+                                       @RequestParam String avatar,
+                                       @RequestParam String subjects,
+                                       @RequestParam String education,
+                                       @RequestParam String style,
+                                       HttpSession session,
+                                       Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null || user.getRole() != 1) {
+            return "redirect:/login";
+        }
+        try {
+            authService.updateTeacherProfile(user.getId(), realName, gender, idCard, province, city, avatar, subjects, education, style);
+            model.addAttribute("success", "资料完善成功");
+        } catch (BusinessException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        model.addAttribute("user", user);
+        return "teacher_profile";
     }
 }

@@ -49,4 +49,6 @@ public class Notice {
     public enum RefType {
         course, order, admin, other
     }
+
+    // 用于系统、课程、订单等消息通知，type区分类型，refId和refType可关联业务数据
 }

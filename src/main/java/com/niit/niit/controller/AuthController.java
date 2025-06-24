@@ -1,0 +1,81 @@
+package com.niit.niit.controller;
+
+import com.niit.entity.User;
+import com.niit.service.AuthService;
+import com.niit.utils.BusinessException;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+
+@Controller
+public class AuthController {
+    @Autowired
+    private AuthService authService;
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String login(
+            @RequestParam(value = "phone") String phone,
+            @RequestParam(value = "password") String password,
+            HttpSession session,
+            Model model) {
+        try {
+            User user = authService.login(phone, password);
+            session.setAttribute("user", user);
+
+            // 根据角色跳转到不同页面
+            return "redirect:/";
+        } catch (BusinessException e) {
+            model.addAttribute("error", e.getMessage());
+            return "login";
+        }
+    }
+
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String register(
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            @RequestParam("phone") String phone,
+            @RequestParam("roleType") Integer roleType,
+            @RequestParam("extraInfo") String extraInfo, // 年级
+            Model model) {
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setPhone(phone);
+
+        try {
+            User registeredUser = authService.register(user, roleType, extraInfo);
+            model.addAttribute("success", "注册成功，请登录");
+            return "login";
+        } catch (BusinessException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("username", username);
+            model.addAttribute("phone", phone);
+            model.addAttribute("roleType", roleType);
+            model.addAttribute("extraInfo", extraInfo);
+            return "register";
+        }
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
+    }
+}
