@@ -1,11 +1,9 @@
 package com.niit.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 @Entity
 @Table(name = "students")
-@Data
 public class Student {
     @Id
     @Column(name = "user_id")
@@ -21,4 +19,36 @@ public class Student {
 
     @Column(columnDefinition = "TEXT")
     private String needs;
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
+    public String getNeeds() {
+        return needs;
+    }
+
+    public void setNeeds(String needs) {
+        this.needs = needs;
+    }
 }
