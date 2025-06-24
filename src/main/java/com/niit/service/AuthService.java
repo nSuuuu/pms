@@ -53,12 +53,12 @@ public class AuthService {
         }
 
         // 设置默认值
-        user.setGender(Gender.男); // 默认性别
-        user.setProvince("未知"); // 默认省份
-        user.setCity("未知");     // 默认城市
-        user.setIdCard("");      // 默认空身份证
-        user.setRealName("");    // 真实姓名默认为空，后续完善
-        user.setRole(roleType);  // 设置角色
+        user.setGender(Gender.男);
+        user.setProvince("未知");
+        user.setCity("未知");
+        user.setIdCard("");
+        user.setRealName("");
+        user.setRole(roleType);
 
         // 加密密码
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -70,12 +70,13 @@ public class AuthService {
         if (roleType == 1) { // 老师
             Teacher teacher = new Teacher();
             teacher.setUserId(user.getId());
-            teacher.setScore(5.0f); // 默认评分5分
+            teacher.setSchoolLevel(extraInfo); // 设置教学阶段
+            teacher.setScore(5.0f);
             teacherMapper.insert(teacher);
         } else if (roleType == 2) { // 学生
             Student student = new Student();
             student.setUserId(user.getId());
-            student.setGrade(extraInfo); // 使用extraInfo作为年级
+            student.setGrade(extraInfo); // 设置年级
             studentMapper.insert(student);
         }
 
