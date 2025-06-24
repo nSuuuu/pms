@@ -60,6 +60,7 @@
     </section>
 
     <section class="container">
+        <p th:text="'老师数量：' + ${#lists.size(teachers)}"></p>
         <div class="row g-4">
             <div class="col-lg-4 col-md-6" th:each="teacher : ${teachers}">
                 <div class="card teacher-card h-100">
