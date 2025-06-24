@@ -24,8 +24,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public String login(
-            @RequestParam String phone,
-            @RequestParam String password,
+            @RequestParam(value = "phone") String phone,
+            @RequestParam(value = "password") String password,
             HttpSession session,
             Model model) {
         try {
@@ -33,13 +33,7 @@ public class AuthController {
             session.setAttribute("user", user);
 
             // 根据角色跳转到不同页面
-            if (user.getRole() == 0) {
-                return "redirect:/admin/dashboard";
-            } else if (user.getRole() == 1) {
-                return "redirect:/teacher/dashboard";
-            } else {
-                return "redirect:/student/dashboard";
-            }
+            return "redirect:/";
         } catch (BusinessException e) {
             model.addAttribute("error", e.getMessage());
             return "login";
@@ -53,11 +47,11 @@ public class AuthController {
 
     @PostMapping("/register")
     public String register(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam String phone,
-            @RequestParam Integer roleType,
-            @RequestParam String extraInfo,
+            @RequestParam(value = "username") String username,
+            @RequestParam(value = "password") String password,
+            @RequestParam(value = "phone") String phone,
+            @RequestParam(value = "roleType") Integer roleType,
+            @RequestParam(value = "extraInfo") String extraInfo,
             Model model) {
         User user = new User();
         user.setUsername(username);
