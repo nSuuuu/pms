@@ -21,21 +21,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/static/**").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/error", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/")
-                        .permitAll()
-                )
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable()) // 禁用Spring Security自带的表单登录
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login")
                         .permitAll()
-                )
-                .csrf(csrf -> csrf.disable()); // 为了简化示例，禁用CSRF保护
-
+                );
         return http.build();
     }
 
