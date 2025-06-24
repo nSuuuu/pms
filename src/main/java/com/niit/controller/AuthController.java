@@ -24,6 +24,10 @@ public class AuthController {
     public String loginPage() {
         return "login";
     }
+    @GetMapping("/select-teacher")
+    public String selectPage() {
+        return "select";
+    }
 
     @PostMapping("/login")
     public String login(
