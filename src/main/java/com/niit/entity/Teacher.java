@@ -19,6 +19,9 @@ public class Teacher {
     @Column(length = 255)
     private String avatar;
 
+    @Column(name = "school_level", length = 20)
+    private String schoolLevel; // 小学/初中/高中
+
     @Column(columnDefinition = "TEXT")
     private String subjects;
 
