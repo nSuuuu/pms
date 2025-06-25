@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>学生个人中心</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .profile-header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            border-left: 4px solid #0d6efd;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .nav-section {
+            margin-bottom: 20px;
+        }
+        .nav-link {
+            color: #495057;
+        }
+        .nav-link.active {
+            color: #0d6efd;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="/">家教平台</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-home"></i>首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/select">老师咨询</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/courses">我的课程</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <span th:text="${student.user.realName}">用户</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/student/center">个人中心</a></li>
+                        <li><a class="dropdown-item" href="/student/profile">编辑资料</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">退出登录</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <!-- 左侧个人信息 -->
+            <div class="profile-header text-center">
+                <h4 th:text="${student.user.realName}">学生姓名</h4>
+                <p class="text-muted">学生</p>
+                <p class="text-muted" th:text="'IP 属地：' + ${student.user.province}">IP 属地：未知</p>
+                <a href="/student/profile" class="btn btn-outline-primary btn-sm">编辑资料</a>
+            </div>
+
+            <!-- 官方等级 -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title">官方等级</h5>
+                </div>
+                <div class="card-body">
+                    <div class="stat-card">
+                        <h6 class="text-muted">当前等级</h6>
+                        <p class="h4">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h6 class="text-muted">当前总分</h6>
+                        <p class="h4">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h6 class="text-muted">当月</h6>
+                        <p class="h4">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 成就 -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title">成就</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li>获得 <span class="badge bg-primary">0</span> 次点赞</li>
+                        <li>内容获得 <span class="badge bg-primary">0</span> 次评论</li>
+                        <li>获得 <span class="badge bg-primary">0</span> 次收藏</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <!-- 导航 -->
+            <ul class="nav nav-tabs nav-section">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">最近</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">文章</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">代码仓</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">资源</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">问答</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">帖子</a>
+                </li>
+            </ul>
+
+            <!-- 主要内容 -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    我的课程
+                </div>
+                <div class="card-body">
+                    <p th:if="${#lists.isEmpty(courses)}" class="text-muted">暂无课程记录</p>
+                    <div th:each="course : ${courses}" class="mb-3 p-2 border-bottom">
+                        <h5 th:text="${course.subject}">课程名称</h5>
+                        <p class="text-muted">
+                            <span th:text="${#temporals.format(course.startTime, 'yyyy-MM-dd HH:mm')}"></span> -
+                            <span th:text="${#temporals.format(course.endTime, 'HH:mm')}"></span> |
+                            <span th:text="${course.online ? '线上' : '线下'}"></span> |
+                            <span th:text="${course.status}"></span>
+                        </p>
+                        <a th:href="@{/course/detail/{id}(id=${course.id})}" class="btn btn-sm btn-outline-primary">查看详情</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 推广内容 -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">发布博文获大额流量券</h5>
+                    <p class="card-text">助力文章曝光</p>
+                    <a href="#" class="btn btn-sm btn-outline-primary">立即参与</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">教你玩转CSDN博客</h5>
+                    <p class="card-text">创作属于自己的第一篇文章</p>
+                    <a href="#" class="btn btn-sm btn-outline-primary">立即学习</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

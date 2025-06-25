@@ -46,15 +46,13 @@
                         <a class="nav-link active" href="/"><i class="fas fa-home"></i>首页</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{${session.user != null && session.user.role == 2 ? '/student/profile' : '/teacher/profile'}}">
-                            <i class="fas fa-user"></i>我的资料
-                        </a>
+                        <a class="nav-link" href="/student/center"><i class="fas fa-calendar-check"></i>个人中心</a>
                     </li>
 <!--                    <li class="nav-item">-->
 <!--                        <a class="nav-link" href="/select-teacher"><i class="fas fa-book-open"></i>课程选择</a>-->
 <!--                    </li>-->
                     <li class="nav-item">
-                        <a class="nav-link" href="/select"><i class="fas fa-calendar-check"></i>课程预约</a>
+                        <a class="nav-link" href="/select"><i class="fas fa-calendar-check"></i>家教咨询</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/orders"><i class="fas fa-file-invoice"></i>我的订单</a>

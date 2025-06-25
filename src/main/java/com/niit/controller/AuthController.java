@@ -90,40 +90,6 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    @GetMapping("/student/profile")
-    public String studentProfilePage(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
-        if (user == null || user.getRole() != 2) {
-            return "redirect:/login";
-        }
-        model.addAttribute("user", user);
-        return "student_profile";
-    }
-
-    @PostMapping("/student/profile")
-    public String updateStudentProfile(@RequestParam String realName,
-                                       @RequestParam String gender,
-                                       @RequestParam String idCard,
-                                       @RequestParam String province,
-                                       @RequestParam String city,
-                                       @RequestParam String grade,
-                                       @RequestParam String needs,
-                                       HttpSession session,
-                                       Model model) {
-        User user = (User) session.getAttribute("user");
-        if (user == null || user.getRole() != 2) {
-            return "redirect:/login";
-        }
-        try {
-            authService.updateStudentProfile(user.getId(), realName, gender, idCard, province, city, grade, needs);
-            model.addAttribute("success", "资料完善成功");
-        } catch (BusinessException e) {
-            model.addAttribute("error", e.getMessage());
-        }
-        model.addAttribute("user", user);
-        return "student_profile";
-    }
-
     @GetMapping("/teacher/profile")
     public String teacherProfilePage(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");

@@ -11,7 +11,7 @@ public class Student {
     @Column(name = "user_id")
     private Integer userId;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "user_id")
     private User user;
