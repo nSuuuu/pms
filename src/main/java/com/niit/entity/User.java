@@ -3,6 +3,7 @@ package com.niit.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -48,7 +49,7 @@ public class User {
     private Date updateTime;
 
     @Column(name = "birthday")
-    private String birthday;
+    private LocalDateTime birthday;
 
     public enum Gender {
         男, 女

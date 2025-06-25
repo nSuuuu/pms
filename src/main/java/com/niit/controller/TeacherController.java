@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -25,10 +26,16 @@ public class TeacherController {
             @RequestParam(value = "maxPrice", required = false) Integer maxPrice,
             Model model) {
 
-        System.out.println("gradeLevel=" + gradeLevel + ", subject=" + subject + ", province=" + province + ", city=" + city + ", minPrice=" + minPrice + ", maxPrice=" + maxPrice);
+        System.out.println("gradeLevel=" + gradeLevel + ", subject=" + subject +
+                ", province=" + province + ", city=" + city +
+                ", minPrice=" + minPrice + ", maxPrice=" + maxPrice);
 
         List<TeacherInfoDTO> teachers = teacherService.getTeachersWithFilters(
                 gradeLevel, subject, province, city, minPrice, maxPrice);
+
+        if (teachers == null) {
+            teachers = new ArrayList<>();
+        }
 
         model.addAttribute("teachers", teachers);
         model.addAttribute("gradeLevel", gradeLevel);
@@ -38,6 +45,6 @@ public class TeacherController {
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
 
-        return "index";
+        return "select"; // 确保这个和你的模板名一致
     }
 } 
