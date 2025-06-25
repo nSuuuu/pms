@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 @Controller
 public class ChatController {
@@ -27,20 +25,32 @@ public class ChatController {
     private ChatService chatService;
 
     @GetMapping("/chat")
-    public String chatPage(@RequestParam(value = "toUserId", required = false) Integer toUserId, HttpSession session, Model model) {
+    public String chatPage(@RequestParam(value = "toUserId", required = false) Integer toUserId,
+                           HttpSession session, Model model) {
         if (toUserId == null) {
-            return "redirect:/";
+            model.addAttribute("error", "未指定目标用户");
+            return "error";
         }
+
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/login";
-        User toUser = userRepository.findById(toUserId).orElse(null);
-        if (toUser == null) return "redirect:/";
+
+        Optional<User> toUserOpt = userRepository.findById(toUserId);
+        if (toUserOpt.isEmpty()) {
+            model.addAttribute("error", "目标用户不存在");
+            return "error";
+        }
+
+        User toUser = toUserOpt.get();
         List<ChatMessage> messages = chatService.getChatHistory(user.getId(), toUserId);
+
         model.addAttribute("messages", messages);
         model.addAttribute("toUser", toUser);
+
         List<ChatMessage> unreadList = chatMessageRepository.findByToUserIdAndReadFalse(user.getId());
         int unreadCount = unreadList != null ? unreadList.size() : 0;
         model.addAttribute("unreadCount", unreadCount);
+
         return "chat";
     }
 
@@ -58,19 +68,34 @@ public class ChatController {
     public String chatList(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/login";
-        // 查询所有和当前用户有关的消息
-        List<ChatMessage> allMessages = chatMessageRepository.findAll();
-        // 用于存储会话用户id和用户对象
+
+        List<ChatMessage> sentMessages = chatMessageRepository.findByFromUser(user);
+        List<ChatMessage> receivedMessages = chatMessageRepository.findByToUser(user);
+        List<ChatMessage> allMessages = new ArrayList<>();
+        allMessages.addAll(sentMessages);
+        allMessages.addAll(receivedMessages);
+
+        Set<Integer> userIds = new HashSet<>();
         Map<Integer, User> chatUsers = new LinkedHashMap<>();
+
         for (ChatMessage msg : allMessages) {
+            Integer otherId;
             if (msg.getFromUser().getId().equals(user.getId())) {
-                // 我发给别人的
-                chatUsers.put(msg.getToUser().getId(), msg.getToUser());
+                otherId = msg.getToUser().getId();
             } else if (msg.getToUser().getId().equals(user.getId())) {
-                // 别人发给我的
-                chatUsers.put(msg.getFromUser().getId(), msg.getFromUser());
+                otherId = msg.getFromUser().getId();
+            } else {
+                continue;
+            }
+
+            if (!userIds.contains(otherId)) {
+                userRepository.findById(otherId).ifPresent(u -> {
+                    chatUsers.put(u.getId(), u);
+                    userIds.add(u.getId());
+                });
             }
         }
+
         model.addAttribute("chatUsers", chatUsers.values());
         return "chat_list";
     }
