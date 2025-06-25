@@ -9,6 +9,7 @@ import com.niit.repository.StudentRepository;
 import com.niit.repository.TeacherRepository;
 import com.niit.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,12 +24,15 @@ public class AuthService {
     @Autowired
     private TeacherRepository teacherRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public User login(String phone, String password) throws BusinessException {
         User user = userRepository.findByPhone(phone);
         if (user == null) {
             throw new BusinessException("手机号未注册");
         }
-        if (!password.equals(user.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BusinessException("密码错误");
         }
         return user;
@@ -54,8 +58,8 @@ public class AuthService {
         user.setRealName("");    // 真实姓名默认为空，后续完善
         user.setRole(roleType);  // 设置角色
 
-        // 明文密码直接保存
-        user.setPassword(user.getPassword());
+        // 加密密码
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // 插入用户
         user = userRepository.save(user);
