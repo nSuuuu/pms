@@ -41,4 +41,4 @@ public class UserServiceImpl implements UserService {
     public boolean isPhoneExists(String phone) {
         return userRepository.existsByPhone(phone);
     }
-} 
+}
