@@ -50,9 +50,9 @@
                             <i class="fas fa-user"></i>我的资料
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/select-teacher"><i class="fas fa-book-open"></i>课程选择</a>
-                    </li>
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="/select-teacher"><i class="fas fa-book-open"></i>课程选择</a>-->
+<!--                    </li>-->
                     <li class="nav-item">
                         <a class="nav-link" href="/select"><i class="fas fa-calendar-check"></i>课程预约</a>
                     </li>
@@ -63,7 +63,7 @@
                         <a class="nav-link" href="/notices"><i class="fas fa-bell"></i>消息通知</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/chat"><i class="fas fa-comments"></i>私信聊天</a>
+                        <a class="nav-link" href="/chat/list"><i class="fas fa-comments"></i>私信聊天</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/history"><i class="fas fa-history"></i>历史课程</a>
@@ -79,6 +79,11 @@
         </nav>
         <!-- 主内容区 -->
         <main class="col-md-10 ms-sm-auto main-content" id="mainContent">
+            <!-- 新增未读私信弹窗 -->
+            <div th:if="${unreadCount > 0}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                你有 <strong th:text="${unreadCount}">0</strong> 条新私信消息！<a href="/chat/list" class="ms-2">点击查看</a>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             <h2>欢迎来到家教管理系统！</h2>
             <p>请通过左侧导航栏访问各项功能。</p>
             <!-- 这里可以插入首页内容或教师列表等 -->

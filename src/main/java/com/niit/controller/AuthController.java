@@ -3,6 +3,7 @@ package com.niit.controller;
 import com.niit.entity.User;
 import com.niit.service.AuthService;
 import com.niit.utils.BusinessException;
+import com.niit.repository.ChatMessageRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,18 +17,24 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
+
     @GetMapping("/")
-    public String home() {
+    public String home(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        int unreadCount = 0;
+        if (user != null) {
+            unreadCount = chatMessageRepository.findByToUserIdAndReadFalse(user.getId()).size();
+        }
+        model.addAttribute("unreadCount", unreadCount);
         return "index";
     }
     @GetMapping("/login")
     public String loginPage() {
         return "login";
     }
-    @GetMapping("/select-teacher")
-    public String selectPage() {
-        return "select";
-    }
+
 
     @PostMapping("/login")
     public String login(

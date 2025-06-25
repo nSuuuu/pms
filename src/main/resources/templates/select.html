@@ -98,6 +98,10 @@
                                 ¥<span th:text="${teacher.price}">100</span>/小时
                             </div>
                         </div>
+                        <div class="mt-2 text-end">
+                            <a class="btn btn-outline-primary btn-sm" th:href="@{'/chat?toUserId=' + ${teacher.userId}}" target="_self">发消息</a>
+                            <!-- 跳转提示：点击后会跳转到聊天页面 -->
+                        </div>
                     </div>
                 </div>
             </div>

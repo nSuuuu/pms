@@ -51,8 +51,8 @@ public class AuthService {
         user.setGender(Gender.男); // 默认性别
         user.setProvince("未知"); // 默认省份
         user.setCity("未知");     // 默认城市
-        user.setIdCard("null");      // 默认空身份证
-        user.setRealName("null");    // 真实姓名默认为空，后续完善
+        user.setIdCard(null);      // 默认空身份证
+        user.setRealName(null);    // 真实姓名默认为空，后续完善
         user.setRole(roleType);  // 设置角色
 
         // 存储明文密码
