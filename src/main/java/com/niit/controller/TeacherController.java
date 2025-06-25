@@ -33,6 +33,8 @@ public class TeacherController {
         List<TeacherInfoDTO> teachers = teacherService.getTeachersWithFilters(
                 gradeLevel, subject, province, city, minPrice, maxPrice);
 
+        System.out.println("查询到老师数量: " + (teachers != null ? teachers.size() : 0));
+
         if (teachers == null) {
             teachers = new ArrayList<>();
         }
