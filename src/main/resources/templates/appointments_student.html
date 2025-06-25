@@ -7,6 +7,10 @@
 </head>
 <body>
 <div class="container mt-5">
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        预约成功！
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     <h2>我的课程预约</h2>
     <table class="table table-bordered">
         <thead>
@@ -21,17 +25,17 @@
         </thead>
         <tbody>
         <tr th:each="appt : ${appointments}">
-            <td th:text="${appt.teacher.username}"></td>
+            <td th:text="${teacherMap[appt.teacherId]?.realName != null ? teacherMap[appt.teacherId]?.realName : teacherMap[appt.teacherId]?.username}"></td>
             <td th:text="${appt.subject}"></td>
-            <td th:text="${#dates.format(appt.startTime, 'yyyy-MM-dd HH:mm')}"></td>
-            <td th:text="${#dates.format(appt.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${#temporals.format(appt.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${#temporals.format(appt.endTime, 'yyyy-MM-dd HH:mm')}"></td>
             <td th:text="${appt.status}"></td>
             <td>
                 <form th:action="@{/appointments/cancel}" method="post" th:if="${appt.status == 'PENDING'}">
                     <input type="hidden" name="appointmentId" th:value="${appt.id}"/>
                     <button type="submit" class="btn btn-danger btn-sm">取消</button>
                 </form>
-                <a class="btn btn-outline-primary btn-sm mt-1" th:href="@{'/chat?toUserId=' + ${appt.teacher.id}}">发消息</a>
+                <a class="btn btn-outline-primary btn-sm mt-1" th:href="@{'/chat?toUserId=' + ${appt.teacherId}}">发消息</a>
             </td>
         </tr>
         </tbody>

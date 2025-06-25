@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
-    List<Appointment> findByStudentIdOrderByStartTimeDesc(Integer studentId);
-    List<Appointment> findByTeacherIdOrderByStartTimeDesc(Integer teacherId);
+    List<Appointment> findByStudentId(Integer studentId);
+    List<Appointment> findByTeacherId(Integer teacherId);
 } 

@@ -2,8 +2,8 @@ package com.niit.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,32 +14,13 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
-    private User student;
-
-    @ManyToOne
-    @JoinColumn(name = "teacher_id", nullable = false)
-    private User teacher;
-
-    @Column(nullable = false, length = 100)
+    private Integer studentId;
+    private Integer teacherId;
     private String subject;
-
-    @Column(nullable = false)
     private LocalDateTime startTime;
-
-    @Column(nullable = false)
     private LocalDateTime endTime;
+    private String status; // 枚举类型，PENDING/CONFIRMED/CANCELLED
+    private Timestamp createTime;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status = Status.PENDING;
 
-    @CreationTimestamp
-    @Column(name = "create_time", updatable = false)
-    private LocalDateTime createTime;
-
-    public enum Status {
-        PENDING, CONFIRMED, CANCELLED, COMPLETED
-    }
 } 
