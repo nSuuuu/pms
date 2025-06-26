@@ -123,15 +123,19 @@
         <nav class="col-md-2 d-none d-md-block sidebar">
             <div class="position-sticky">
                 <a class="navbar-brand d-block mb-4 text-center" href="/">家教管理系统</a>
+                <!-- 在 index.html 的侧边栏部分修改为以下内容 -->
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link active" href="/"><i class="fas fa-home"></i>首页</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/student/center"><i class="fas fa-calendar-check"></i>个人中心</a>
+                    <li th:if="${session.user.role == 2}" class="nav-item">
+                        <a class="nav-link" href="/student/center"><i class="fas fa-user-graduate"></i>学生中心</a>
+                    </li>
+                    <li th:if="${session.user.role == 1}" class="nav-item">
+                        <a class="nav-link" href="/teacher/center"><i class="fas fa-chalkboard-teacher"></i>老师中心</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/select"><i class="fas fa-calendar-check"></i>家教咨询</a>
+                        <a class="nav-link" href="/select"><i class="fas fa-search"></i>家教咨询</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/orders"><i class="fas fa-file-invoice"></i>我的订单</a>

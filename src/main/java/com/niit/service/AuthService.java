@@ -116,4 +116,10 @@ public class AuthService {
         teacher.setStyle(style);
         teacherRepository.save(teacher);
     }
+
+    public boolean isIdCardExists(String idCard, Integer id) {
+    return userRepository.existsByIdCardAndIdNot(idCard, id);}
+
+    public User getUserById(Integer id) {
+    return userRepository.findById(id).orElse(null);}
 }

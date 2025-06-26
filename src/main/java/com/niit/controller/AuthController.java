@@ -90,39 +90,5 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    @GetMapping("/teacher/profile")
-    public String teacherProfilePage(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
-        if (user == null || user.getRole() != 1) {
-            return "redirect:/login";
-        }
-        model.addAttribute("user", user);
-        return "teacher_profile";
-    }
 
-    @PostMapping("/teacher/profile")
-    public String updateTeacherProfile(@RequestParam String realName,
-                                       @RequestParam String gender,
-                                       @RequestParam String idCard,
-                                       @RequestParam String province,
-                                       @RequestParam String city,
-                                       @RequestParam String avatar,
-                                       @RequestParam String subjects,
-                                       @RequestParam String education,
-                                       @RequestParam String style,
-                                       HttpSession session,
-                                       Model model) {
-        User user = (User) session.getAttribute("user");
-        if (user == null || user.getRole() != 1) {
-            return "redirect:/login";
-        }
-        try {
-            authService.updateTeacherProfile(user.getId(), realName, gender, idCard, province, city, avatar, subjects, education, style);
-            model.addAttribute("success", "资料完善成功");
-        } catch (BusinessException e) {
-            model.addAttribute("error", e.getMessage());
-        }
-        model.addAttribute("user", user);
-        return "teacher_profile";
-    }
 }

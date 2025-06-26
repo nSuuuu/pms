@@ -24,4 +24,5 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
      */
     List<Course> findByStudent(User student);
 
+    List<Course> findByTeacherId(Integer id);
 }
