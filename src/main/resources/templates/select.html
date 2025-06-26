@@ -148,5 +148,26 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 设置开始时间最小为今天
+        var now = new Date();
+        var today = now.toISOString().slice(0,16);
+        document.querySelectorAll('input[name="startTime"]').forEach(function(input){
+            input.setAttribute('min', today);
+            input.addEventListener('change', function() {
+                var endInput = input.closest('form').querySelector('input[name="endTime"]');
+                endInput.setAttribute('min', input.value);
+            });
+        });
+        // 设置结束时间最小为开始时间
+        document.querySelectorAll('input[name="endTime"]').forEach(function(input){
+            input.addEventListener('focus', function() {
+                var startInput = input.closest('form').querySelector('input[name="startTime"]');
+                input.setAttribute('min', startInput.value);
+            });
+        });
+    });
+</script>
 </body>
 </html> 

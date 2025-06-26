@@ -100,4 +100,17 @@ public class AppointmentController {
         // 默认跳转到学生预约页面
         return "redirect:/appointments/student";
     }
+
+    // 老师同意预约
+    @PostMapping("/accept")
+    public String acceptAppointment(@RequestParam Integer appointmentId, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        Appointment appt = appointmentRepository.findById(appointmentId).orElse(null);
+        if (appt != null && appt.getTeacherId().equals(user.getId()) && "PENDING".equals(appt.getStatus())) {
+            appt.setStatus("CONFIRMED");
+            appointmentRepository.save(appt);
+        }
+        return "redirect:/appointments/teacher";
+    }
 } 

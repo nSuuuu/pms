@@ -35,6 +35,7 @@
                     <input type="hidden" name="appointmentId" th:value="${appt.id}"/>
                     <button type="submit" class="btn btn-danger btn-sm">取消</button>
                 </form>
+                <a class="btn btn-outline-primary btn-sm mt-1" th:href="@{'/orders/create?appointmentId=' + ${appt.id}}" th:if="${appt.status == 'CONFIRMED'}">下单</a>
                 <a class="btn btn-outline-primary btn-sm mt-1" th:href="@{'/chat?toUserId=' + ${appt.teacherId}}">发消息</a>
             </td>
         </tr>

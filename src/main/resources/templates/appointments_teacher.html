@@ -31,6 +31,10 @@
                     <input type="hidden" name="appointmentId" th:value="${appt.id}"/>
                     <button type="submit" class="btn btn-danger btn-sm">取消</button>
                 </form>
+                <form th:action="@{/appointments/accept}" method="post" th:if="${appt.status == 'PENDING'}">
+                    <input type="hidden" name="appointmentId" th:value="${appt.id}"/>
+                    <button type="submit" class="btn btn-success btn-sm">同意</button>
+                </form>
                 <a class="btn btn-outline-primary btn-sm mt-1" th:href="@{'/chat?toUserId=' + ${appt.studentId}}">发消息</a>
             </td>
         </tr>
