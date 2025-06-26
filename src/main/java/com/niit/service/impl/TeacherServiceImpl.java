@@ -1,6 +1,7 @@
 package com.niit.service.impl;
 
 import com.niit.dto.TeacherInfoDTO;
+import com.niit.entity.Teacher;
 import com.niit.repository.TeacherRepository;
 import com.niit.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,5 +49,10 @@ public class TeacherServiceImpl implements TeacherService {
     public List<TeacherInfoDTO> getAllTeachers() {
         // 调用 findTeachersWithFilters 方法，传入所有 null 参数以获取所有老师
         return getTeachersWithFilters(null, null, null, null, null, null);
+    }
+
+    @Override
+    public Teacher findByUserId(Integer userId) {
+        return teacherRepository.findByUserId(userId);
     }
 } 

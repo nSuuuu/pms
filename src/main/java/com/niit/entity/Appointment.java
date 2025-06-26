@@ -22,5 +22,8 @@ public class Appointment {
     private String status; // 枚举类型，PENDING/CONFIRMED/CANCELLED
     private Timestamp createTime;
 
-
+    @Transient
+    private String teacherName;
+    @Transient
+    private String studentName;
 } 
