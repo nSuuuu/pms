@@ -52,7 +52,7 @@
             <ul class="navbar-nav">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                        <span th:text="${student.user.realName}">用户</span>
+                        <span th:text="${student?.user?.realName ?: '用户'}">用户</span>
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/student/center">个人中心</a></li>
@@ -71,9 +71,9 @@
         <div class="col-md-3">
             <!-- 左侧个人信息 -->
             <div class="profile-header text-center">
-                <h4 th:text="${student.user.realName}">学生姓名</h4>
+                <h4 th:text="${student?.user?.realName ?: '学生姓名'}">学生姓名</h4>
                 <p class="text-muted">学生</p>
-                <p class="text-muted" th:text="'IP 属地：' + ${student.user.province}">IP 属地：未知</p>
+                <p class="text-muted" th:text="'IP 属地：' + ${student?.user?.province ?: '未知'}">IP 属地：未知</p>
                 <a href="/student/profile" class="btn btn-outline-primary btn-sm">编辑资料</a>
             </div>
 
