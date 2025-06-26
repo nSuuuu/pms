@@ -133,7 +133,8 @@
                         <input type="hidden" name="appointmentId" th:value="${appt.id}"/>
                         <button type="submit" class="btn btn-outline-secondary btn-sm" title="取消预约">取消</button>
                     </form>
-                    <a th:href="@{'/orders/create'(appointmentId=${appt.id})}" class="btn btn-primary">下单</a>
+                    <span th:if="${paidOrderMap[appt.id]}" class="btn btn-success disabled" title="订单已完成">已完成</span>
+                    <a th:if="${!paidOrderMap[appt.id]}" th:href="@{'/orders/create'(appointmentId=${appt.id})}" class="btn btn-primary">下单</a>
                     <a th:href="@{'/chat?toUserId=' + ${appt.teacherId}}" class="btn btn-outline-primary">发消息</a>
                 </div>
             </td>

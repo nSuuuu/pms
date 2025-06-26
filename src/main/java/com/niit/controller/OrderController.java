@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.niit.repository.CourseRepository;
 import com.niit.entity.Course;
 import java.math.BigDecimal;
+import java.time.Duration;
 
 import java.util.List;
 
@@ -67,9 +68,14 @@ public class OrderController {
             course.setStatus(Course.CourseStatus.已预约);
             course = courseRepository.save(course);
         }
-        // 获取教师价格
+        // 计算预约时长（小时，保留两位小数）
+        Duration duration = Duration.between(appointment.getStartTime(), appointment.getEndTime());
+        double hours = duration.toMinutes() / 60.0;
+        // 获取老师单价
         Teacher teacher = teacherRepository.findByUserId(appointment.getTeacherId());
-        BigDecimal price = teacher != null ? new BigDecimal(teacher.getPrice()) : BigDecimal.ZERO;
+        BigDecimal pricePerHour = teacher != null ? new BigDecimal(teacher.getPrice()) : BigDecimal.ZERO;
+        // 计算总金额
+        BigDecimal amount = pricePerHour.multiply(BigDecimal.valueOf(hours)).setScale(2, BigDecimal.ROUND_HALF_UP);
 
         // 检查是否已存在该预约的订单，避免重复下单
         final Course finalCourse = course;
@@ -79,7 +85,7 @@ public class OrderController {
             Order order = new Order();
             order.setUser(user);
             order.setCourse(course);
-            order.setAmount(price);
+            order.setAmount(amount);
             order.setStatus(Order.OrderStatus.待支付);
             orderRepository.save(order);
         }
