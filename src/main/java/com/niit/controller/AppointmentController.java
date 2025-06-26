@@ -83,10 +83,21 @@ public class AppointmentController {
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/login";
         Appointment appt = appointmentRepository.findById(appointmentId).orElse(null);
-        if (appt != null && appt.getStudentId().equals(user.getId())) {
-            appt.setStatus("CANCELLED");
-            appointmentRepository.save(appt);
+        if (appt != null) {
+            // 学生本人取消
+            if (appt.getStudentId().equals(user.getId())) {
+                appt.setStatus("CANCELLED");
+                appointmentRepository.save(appt);
+                return "redirect:/appointments/student";
+            }
+            // 老师本人取消
+            if (appt.getTeacherId().equals(user.getId())) {
+                appt.setStatus("CANCELLED");
+                appointmentRepository.save(appt);
+                return "redirect:/appointments/teacher";
+            }
         }
+        // 默认跳转到学生预约页面
         return "redirect:/appointments/student";
     }
 } 

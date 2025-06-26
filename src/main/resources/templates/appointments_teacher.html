@@ -21,17 +21,17 @@
         </thead>
         <tbody>
         <tr th:each="appt : ${appointments}">
-            <td th:text="${appt.student.username}"></td>
+            <td th:text="${studentMap[appt.studentId]?.realName != null ? studentMap[appt.studentId]?.realName : studentMap[appt.studentId]?.username}"></td>
             <td th:text="${appt.subject}"></td>
-            <td th:text="${#dates.format(appt.startTime, 'yyyy-MM-dd HH:mm')}"></td>
-            <td th:text="${#dates.format(appt.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${#temporals.format(appt.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${#temporals.format(appt.endTime, 'yyyy-MM-dd HH:mm')}"></td>
             <td th:text="${appt.status}"></td>
             <td>
                 <form th:action="@{/appointments/cancel}" method="post" th:if="${appt.status == 'PENDING'}">
                     <input type="hidden" name="appointmentId" th:value="${appt.id}"/>
                     <button type="submit" class="btn btn-danger btn-sm">取消</button>
                 </form>
-                <a class="btn btn-outline-primary btn-sm mt-1" th:href="@{'/chat?toUserId=' + ${appt.student.id}}">发消息</a>
+                <a class="btn btn-outline-primary btn-sm mt-1" th:href="@{'/chat?toUserId=' + ${appt.studentId}}">发消息</a>
             </td>
         </tr>
         </tbody>
