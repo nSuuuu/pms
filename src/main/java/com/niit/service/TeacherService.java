@@ -4,6 +4,7 @@ import com.niit.dto.TeacherInfoDTO;
 import com.niit.repository.TeacherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.niit.entity.Teacher;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface TeacherService {
             Integer maxPrice);
 
     public List<TeacherInfoDTO> getAllTeachers();
+
+    Teacher findByUserId(Integer userId);
 }

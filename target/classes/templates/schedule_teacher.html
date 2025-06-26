@@ -2,12 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>课表</title>
+    <title>老师课表</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9ff;
-            color: #333;
+            background-color:
+                    #f8f9ff; color: #333;
         }
         .container {
             background-color: white;
@@ -91,7 +91,6 @@
     </style>
 </head>
 <body>
-<!-- 导航栏 -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
     <div class="container">
         <a class="navbar-brand" href="/">家教平台</a>
@@ -101,7 +100,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/"><i class="fas fa-home"></i>首页</a>
+                    <a class="nav-link" href="/">首页</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/select">老师咨询</a>
@@ -113,12 +112,11 @@
             <ul class="navbar-nav">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                        <span th:if="${role} == 2" th:text="${student?.user?.realName ?: 'N/A'}">学生</span>
-                        <span th:if="${role} == 1" th:text="${teacher?.user?.realName ?: 'N/A'}">老师</span>
+                        <span th:text="${teacher?.user?.realName ?: 'N/A'}">老师</span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/student/center">个人中心</a></li>
-                        <li><a class="dropdown-item" href="/student/profile">编辑资料</a></li>
+                        <li><a class="dropdown-item" href="/teacher/center">个人中心</a></li>
+                        <li><a class="dropdown-item" href="/teacher/profile">编辑资料</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/logout">退出登录</a></li>
                     </ul>
@@ -127,9 +125,8 @@
         </div>
     </div>
 </nav>
-
 <div class="container">
-    <h1 class="mt-4" th:text="${role} == 2 ? '学生课表' : (${role} == 1 ? '老师课表' : '课表')">课表</h1>
+    <h1 class="mt-4">老师课表</h1>
     <div class="d-flex align-items-center mb-4">
         <button class="btn btn-outline-secondary btn-sm me-2" id="prevYear">« 年</button>
         <button class="btn btn-outline-secondary btn-sm me-2" id="prevMonth">‹ 月</button>
@@ -138,12 +135,12 @@
         <button class="btn btn-outline-secondary btn-sm ms-2" id="nextYear">年 »</button>
     </div>
     <div id="calendar"></div>
-    <h3 class="mt-4 mb-3" th:text="${role} == 2 ? '我的课程安排' : (${role} == 1 ? '授课安排' : '课程安排')">课程安排</h3>
+    <h3 class="mt-4 mb-3">授课安排</h3>
     <table class="table table-striped mt-2">
         <thead>
         <tr>
             <th>科目</th>
-            <th th:text="${role} == 2 ? '老师' : (${role} == 1 ? '学生' : '对象')">对象</th>
+            <th>学生</th>
             <th>开始时间</th>
             <th>结束时间</th>
             <th>状态</th>
@@ -152,7 +149,7 @@
         <tbody>
         <tr th:each="appt : ${appointments != null} ? ${appointments} : ${#lists.list()} ">
             <td th:text="${appt.subject}"></td>
-            <td th:text="${role == 2} ? appt.teacherName : (role == 1 ? appt.studentName : '')"></td>
+            <td th:text="${appt.studentName}"></td>
             <td th:text="${#temporals.format(appt.startTime, 'yyyy-MM-dd HH:mm')}"></td>
             <td th:text="${#temporals.format(appt.endTime, 'yyyy-MM-dd HH:mm')}"></td>
             <td th:text="${appt.status}"></td>
@@ -163,7 +160,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
     var courseDates = [[${courseDates}]];
-    // 渲染日历，支持切换年月
     var today = new Date();
     var currentYear = today.getFullYear();
     var currentMonth = today.getMonth();
@@ -185,28 +181,12 @@
         document.getElementById('calendar').innerHTML = html;
         document.getElementById('calendarTitle').innerText = year + '年' + String(month+1).padStart(2,'0') + '月';
     }
-    function updateCalendar() {
-        renderCalendar(currentYear, currentMonth);
-    }
-    document.getElementById('prevMonth').onclick = function() {
-        currentMonth--;
-        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-        updateCalendar();
-    };
-    document.getElementById('nextMonth').onclick = function() {
-        currentMonth++;
-        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-        updateCalendar();
-    };
-    document.getElementById('prevYear').onclick = function() {
-        currentYear--;
-        updateCalendar();
-    };
-    document.getElementById('nextYear').onclick = function() {
-        currentYear++;
-        updateCalendar();
-    };
+    function updateCalendar() { renderCalendar(currentYear, currentMonth); }
+    document.getElementById('prevMonth').onclick = function() { currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; } updateCalendar(); };
+    document.getElementById('nextMonth').onclick = function() { currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; } updateCalendar(); };
+    document.getElementById('prevYear').onclick = function() { currentYear--; updateCalendar(); };
+    document.getElementById('nextYear').onclick = function() { currentYear++; updateCalendar(); };
     updateCalendar();
 </script>
 </body>
-</html>
+</html> 
