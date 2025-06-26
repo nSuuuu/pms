@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <title>家教管理系统-首页</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: #f8f9fc;
+            background-color: #f8f9ff;
             margin: 0;
             padding: 0;
         }
@@ -26,64 +26,65 @@
             transition: background 0.2s;
         }
         .sidebar .nav-link.active, .sidebar .nav-link:hover {
-            background: #4e73df;
+            background: #4169e1;
             color: #fff;
         }
         .sidebar .nav-link i {
             margin-right: 0.7rem;
         }
         .main-content {
-            padding: 0; /* 移除内边距 */
+            padding: 2rem;
             height: 100vh;
             overflow-y: auto;
-            border: none; /* 确保没有边框 */
+            background-color: #f8f9ff;
         }
-        .navbar-brand { font-weight: bold; }
+        .navbar-brand {
+            font-weight: bold;
+            color: #fff !important;
+        }
 
         /* 用户统计卡片样式 */
         .stats-container {
             display: flex;
             flex-direction: column;
-            height: 100vh; /* 占满整个视口高度 */
             justify-content: center;
-            margin: 0; /* 移除外边距 */
+            align-items: center;
+            height: 80vh;
+        }
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            width: 100%;
         }
         .stats-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: white;
             border-radius: 15px;
-            padding: 30px;
-            margin: 10px 20px; /* 调整边距 */
+            padding: 2rem;
             transition: all 0.3s ease;
-            flex: 1;
+            width: 300px;
+            box-shadow: 0 4px 15px rgba(100, 149, 237, 0.1);
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            max-height: calc(100vh / 3); /* 三等分高度 */
-            border: none; /* 移除边框 */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* 只保留阴影 */
+            align-items: center;
         }
-
         .stats-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(78, 115, 223, 0.2);
-            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 10px 25px rgba(65, 105, 225, 0.2);
         }
         .stats-title {
             font-size: 1.2rem;
             color: #6c757d;
-            margin-bottom: 15px;
+            margin-bottom: 1rem;
             text-align: center;
         }
         .stats-value {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: bold;
-            color: #4e73df;
-            margin-bottom: 10px;
+            color: #4169e1;
+            margin-bottom: 0.5rem;
             text-align: center;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         .stats-description {
             color: #858796;
@@ -96,6 +97,23 @@
             height: 1em;
             line-height: 1;
         }
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #4169e1;
+            font-size: 2rem;
+            font-weight: bold;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .alert-warning {
+            background-color: #fff3e0;
+            border-color: #ffe0b2;
+            color: #f57c00;
+        }
     </style>
 </head>
 <body>
@@ -104,7 +122,7 @@
         <!-- 侧边栏 -->
         <nav class="col-md-2 d-none d-md-block sidebar">
             <div class="position-sticky">
-                <a class="navbar-brand d-block mb-4 text-center" href="/" style="color:#fff;">家教管理系统</a>
+                <a class="navbar-brand d-block mb-4 text-center" href="/">家教管理系统</a>
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link active" href="/"><i class="fas fa-home"></i>首页</a>
@@ -145,87 +163,118 @@
         <!-- 主内容区 -->
         <main class="col-md-10 ms-sm-auto main-content" id="mainContent">
             <!-- 新增未读私信弹窗 -->
-            <div th:if="${unreadCount > 0}" class="alert alert-warning alert-dismissible fade show" role="alert">
-                你有 <strong th:text="${unreadCount}">0</strong> 条新私信消息！<a href="/chat/list" class="ms-2">点击查看</a>
+            <div th:if="${unreadCount != null && unreadCount > 0}"
+                 th:attr="data-unread=${unreadCount}"
+                 id="unreadMessageAlert"
+                 class="alert alert-warning alert-dismissible fade show mb-4"
+                 role="alert">
+                你有 <strong th:text="${unreadCount}">0</strong> 条新私信消息！
+                <a href="/chat/list" class="ms-2" id="viewMessagesLink">点击查看</a>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- 欢迎语 -->
+            <div class="welcome-message">
+                欢迎来到家教管理系统，我们开课啦！！！
             </div>
 
             <!-- 用户统计卡片 -->
             <div class="stats-container">
-                <div class="stats-card">
-                    <h6 class="stats-title">注册用户</h6>
-                    <div class="stats-value">
-                        <span id="userCount" class="rolling-number">0</span>+
+                <div class="stats-row">
+                    <div class="stats-card">
+                        <h6 class="stats-title">注册用户</h6>
+                        <div class="stats-value">
+                            <span id="userCount" class="rolling-number">0</span>+
+                        </div>
+                        <p class="stats-description">平台已有用户数量</p>
                     </div>
-                    <p class="stats-description">平台已有用户数量</p>
+                    <div class="stats-card">
+                        <h6 class="stats-title">认证教师</h6>
+                        <div class="stats-value">
+                            <span id="teacherCount" class="rolling-number">0</span>+
+                        </div>
+                        <p class="stats-description">专业认证教师数量</p>
+                    </div>
                 </div>
-                <div class="stats-card">
-                    <h6 class="stats-title">认证教师</h6>
-                    <div class="stats-value">
-                        <span id="teacherCount" class="rolling-number">0</span>+
+                <div class="stats-row">
+                    <div class="stats-card">
+                        <h6 class="stats-title">完成课程</h6>
+                        <div class="stats-value">
+                            <span id="courseCount" class="rolling-number">0</span>+
+                        </div>
+                        <p class="stats-description">已完成课程总数</p>
                     </div>
-                    <p class="stats-description">专业认证教师数量</p>
-                </div>
-                <div class="stats-card">
-                    <h6 class="stats-title">完成课程</h6>
-                    <div class="stats-value">
-                        <span id="courseCount" class="rolling-number">0</span>+
-                    </div>
-                    <p class="stats-description">已完成课程总数</p>
                 </div>
             </div>
         </main>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 课程选择点击事件，动态加载select.html内容到主内容区
-    document.addEventListener('DOMContentLoaded', function() {
-        var courseSelectLink = document.getElementById('courseSelectLink');
-        if (courseSelectLink) {
-            courseSelectLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                fetch('/select')
-                    .then(response => response.text())
-                    .then(html => {
-                        // 只提取body内容，避免重复head等
-                        var parser = new DOMParser();
-                        var doc = parser.parseFromString(html, 'text/html');
-                        var selectContent = doc.querySelector('section.container');
-                        document.getElementById('mainContent').innerHTML = selectContent ? selectContent.outerHTML : html;
-                    });
-            });
-        }
+    // 数字滚动动画函数
+    function animateValue(id, start, end, duration) {
+        const obj = document.getElementById(id);
+        if (!obj) return;
 
-        // 数字滚动动画函数
-        function animateValue(id, start, end, duration) {
-            var obj = document.getElementById(id);
-            var range = end - start;
-            var minTimer = 50;
-            var stepTime = Math.abs(Math.floor(duration / range));
-            stepTime = Math.max(stepTime, minTimer);
+        const range = end - start;
+        const minStepTime = 50;
+        const stepTime = Math.max(Math.floor(duration / range), minStepTime);
 
-            var startTime = new Date().getTime();
-            var endTime = startTime + duration;
-            var timer;
+        const startTime = new Date().getTime();
+        const endTime = startTime + duration;
 
-            function run() {
-                var now = new Date().getTime();
-                var remaining = Math.max((endTime - now) / duration, 0);
-                var value = Math.round(end - (remaining * range));
-                obj.innerHTML = value;
-                if (value == end) {
-                    clearInterval(timer);
-                }
+        let timer;
+
+        function update() {
+            const now = new Date().getTime();
+            const progress = Math.min((now - startTime) / duration, 1);
+            const value = Math.round(start + range * progress);
+            obj.textContent = value;
+
+            if (progress === 1) {
+                clearInterval(timer);
             }
-
-            timer = setInterval(run, stepTime);
-            run();
         }
 
-        // 初始化数字动画
+        timer = setInterval(update, stepTime);
+        update(); // 立即执行一次
+    }
+
+    // 处理未读消息提示弹窗逻辑
+    function setupUnreadMessageAlert() {
+        const alertElement = document.getElementById('unreadMessageAlert');
+        const viewMessagesLink = document.getElementById('viewMessagesLink');
+
+        if (!alertElement || !viewMessagesLink) return;
+
+        const unreadCount = parseInt(alertElement.getAttribute('data-unread'), 10);
+        const lastReadCount = parseInt(localStorage.getItem('lastReadCount'), 10);
+
+        // 如果没有新消息或已读过，则隐藏弹窗
+        if (!isNaN(lastReadCount) && lastReadCount >= unreadCount) {
+            alertElement.style.display = 'none';
+            return;
+        }
+
+        // 添加点击事件监听器
+        viewMessagesLink.addEventListener('click', function (e) {
+            localStorage.setItem('lastReadCount', unreadCount);
+
+            // 使用 Bootstrap 的 Alert 实例关闭弹窗
+            const alertInstance = bootstrap.Alert.getOrCreateInstance(alertElement);
+            alertInstance.close();
+        });
+    }
+
+    // 页面加载完成后执行初始化
+    document.addEventListener('DOMContentLoaded', function () {
+        // 初始化数字滚动动画
         animateValue("userCount", 0, 12580, 2000);
         animateValue("teacherCount", 0, 856, 2000);
         animateValue("courseCount", 0, 3245, 2000);
+
+        // 初始化未读消息弹窗逻辑
+        setupUnreadMessageAlert();
     });
 </script>
 </body>
