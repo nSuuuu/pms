@@ -2,97 +2,337 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>学生资料完善</title>
+    <title>编辑学生资料</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .profile-dialog {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            background-color: white;
-        }
-        .profile-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #eee;
-        }
         .form-label {
             font-weight: 500;
         }
-        .form-control, .form-select {
-            border-radius: 5px;
-            padding: 0.5rem 1rem;
+        .region-search {
+            position: relative;
         }
-        textarea.form-control {
-            min-height: 100px;
-        }
-        .btn-submit {
+        .region-results {
+            position: absolute;
+            z-index: 1000;
             width: 100%;
-            padding: 0.5rem;
-            font-weight: 500;
-            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            display: none;
+        }
+        .region-item {
+            padding: 8px;
+            cursor: pointer;
+        }
+        .region-item:hover {
+            background-color: #f8f9fa;
+        }
+        .profile-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .is-invalid {
+            border-color: #dc3545;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            display: none;
+        }
+        .datepicker-dropdown {
+            padding: 10px;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="profile-dialog">
-        <div class="profile-header">
-            <h3>编辑个人资料</h3>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="/">家教平台</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">
+                        <i class="fas fa-home"></i> 首页
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/select">家教咨询</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/courses">我的课程</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/student/center">返回个人中心</a>
+                </li>
+            </ul>
         </div>
+    </div>
+</nav>
 
-        <form action="/student/profile" method="post">
+<div class="container">
+    <div class="profile-container">
+        <h2 class="mb-4">编辑学生资料</h2>
+
+        <form id="profileForm" th:action="@{/student/profile}" method="post">
             <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
 
-            <div class="row g-3">
+            <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <label class="form-label">真实姓名</label>
-                    <input type="text" class="form-control" name="realName" th:value="${user.realName}" required>
+                    <input type="text" class="form-control" id="realName" name="realName"
+                           th:value="${student?.realName}" required
+                           pattern="[\u4e00-\u9fa5]{2,4}"
+                           oninput="validateName()">
+                    <small class="text-muted">请输入2-4个汉字</small>
+                    <div class="invalid-feedback" id="nameFeedback">
+                        姓名必须为2-4个汉字
+                    </div>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">性别</label>
                     <select class="form-select" name="gender" required>
-                        <option value="男" th:selected="${user.gender == '男'}">男</option>
-                        <option value="女" th:selected="${user.gender == '女'}">女</option>
+                        <option value="">请选择性别</option>
+                        <option value="男" th:selected="${student?.gender == '男'}">男</option>
+                        <option value="女" th:selected="${student?.gender == '女'}">女</option>
                     </select>
                 </div>
+            </div>
 
+            <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <label class="form-label">身份证号</label>
-                    <input type="text" class="form-control" name="idCard" th:value="${user.idCard}" required>
+                    <input type="text" class="form-control" id="idCard" name="idCard"
+                           th:value="${student?.idCard}" required
+                           oninput="validateIdCard()">
+                    <div class="invalid-feedback" id="idCardFeedback">
+                        请输入有效的18位身份证号码
+                    </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">年级</label>
-                    <input type="text" class="form-control" name="grade" required>
+                    <label class="form-label">出生日期</label>
+                    <input type="text" class="form-control datepicker" id="birthday" name="birthday"
+                           th:value="${#dates.format(student?.birthday, 'yyyy-MM-dd')}" required
+                           placeholder="点击选择日期" readonly>
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">省份</label>
-                    <input type="text" class="form-control" name="province" th:value="${user.province}" required>
-                </div>
+            <div class="mb-3 region-search">
+                <label class="form-label">籍贯</label>
+                <input type="text" class="form-control" id="nativePlaceSearch"
+                       name="nativePlaceName" th:value="${student?.nativePlaceName}" required
+                       placeholder="输入行政区划名称、编码或拼音首字母"
+                       autocomplete="off">
+                <div class="region-results" id="regionResults"></div>
+                <input type="hidden" id="nativePlaceCode" name="nativePlaceCode" th:value="${student?.nativePlaceCode}">
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">城市</label>
-                    <input type="text" class="form-control" name="city" th:value="${user.city}" required>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">年级</label>
+                <select class="form-select" name="grade" required>
+                    <option value="">请选择年级</option>
+                    <option value="小学一年级" th:selected="${student?.grade == '小学一年级'}">小学一年级</option>
+                    <option value="小学二年级" th:selected="${student?.grade == '小学二年级'}">小学二年级</option>
+                    <option value="小学三年级" th:selected="${student?.grade == '小学三年级'}">小学三年级</option>
+                    <option value="小学四年级" th:selected="${student?.grade == '小学四年级'}">小学四年级</option>
+                    <option value="小学五年级" th:selected="${student?.grade == '小学五年级'}">小学五年级</option>
+                    <option value="小学六年级" th:selected="${student?.grade == '小学六年级'}">小学六年级</option>
+                    <option value="初中一年级" th:selected="${student?.grade == '初中一年级'}">初中一年级</option>
+                    <option value="初中二年级" th:selected="${student?.grade == '初中二年级'}">初中二年级</option>
+                    <option value="初中三年级" th:selected="${student?.grade == '初中三年级'}">初中三年级</option>
+                    <option value="高中一年级" th:selected="${student?.grade == '高中一年级'}">高中一年级</option>
+                    <option value="高中二年级" th:selected="${student?.grade == '高中二年级'}">高中二年级</option>
+                    <option value="高中三年级" th:selected="${student?.grade == '高中三年级'}">高中三年级</option>
+                </select>
+            </div>
 
-                <div class="col-12">
-                    <label class="form-label">学习需求</label>
-                    <textarea class="form-control" name="needs" rows="3"></textarea>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">学习需求</label>
+                <textarea class="form-control" name="needs" rows="3" th:text="${student?.needs}"></textarea>
+            </div>
 
-                <div class="col-12 mt-3">
-                    <button type="submit" class="btn btn-primary btn-submit">保存资料</button>
-                </div>
+            <div class="d-flex justify-content-end">
+                <a href="/student/center" class="btn btn-secondary me-2">取消</a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">保存</button>
             </div>
         </form>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+
+<script>
+    $(document).ready(function(){
+        // 修复1: 使用正确的选择器初始化日期选择器
+        $('#birthday').datepicker({
+            format: 'yyyy-mm-dd',
+            language: 'zh-CN',
+            autoclose: true,
+            todayHighlight: true,
+            startView: 2,
+            minViewMode: 0,
+            clearBtn: true,
+            orientation: 'bottom auto',
+            // 添加点击输入框外的区域自动关闭
+            templates: {
+                leftArrow: '<i class="fa fa-chevron-left"></i>',
+                rightArrow: '<i class="fa fa-chevron-right"></i>'
+            }
+        });
+
+        // 身份证自动填充生日
+        $('#idCard').on('change', function() {
+            if (this.value.length === 18) {
+                const birthDate = this.value.substring(6, 14);
+                const formattedDate = `${birthDate.substring(0, 4)}-${birthDate.substring(4, 6)}-${birthDate.substring(6, 8)}`;
+                $('#birthday').datepicker('setDate', formattedDate);
+            }
+        });
+
+        // 点击日期选择器显示
+        $('#birthday').on('click', function() {
+            $(this).datepicker('show');
+        });
+
+        // 行政区划搜索功能
+        $('#nativePlaceSearch').on('input', function() {
+            const query = $(this).val().trim();
+            if (query.length >= 1) {
+                searchRegions(query);
+            } else {
+                $('#regionResults').hide();
+            }
+        });
+
+        // 点击其他地方隐藏搜索结果
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.region-search').length) {
+                $('#regionResults').hide();
+            }
+        });
+    });
+
+    // 搜索行政区划
+    function searchRegions(query) {
+        $.ajax({
+            url: '/api/regions/search',
+            data: { q: query },
+            success: function(data) {
+                const results = $('#regionResults');
+                results.empty();
+
+                if (data && data.length > 0) {
+                    data.forEach(function(region) {
+                        results.append(
+                            `<div class="region-item"
+                                  data-id="${region.id}"
+                                  data-name="${region.mergerName}"
+                                  data-code="${region.code}">
+                                ${region.mergerName} (${region.code} - ${region.pinyin})
+                            </div>`
+                        );
+                    });
+                    results.show();
+                } else {
+                    results.hide();
+                }
+            },
+            error: function() {
+                $('#regionResults').hide();
+            }
+        });
+    }
+
+    // 处理行政区划选择
+    $(document).on('click', '.region-item', function() {
+        const name = $(this).data('name');
+        const code = $(this).data('code');
+
+        $('#nativePlaceSearch').val(name);
+        $('#nativePlaceCode').val(code);
+        $('#regionResults').hide();
+    });
+
+    // 验证中文姓名(2-4个字符)
+    function validateName() {
+        const nameInput = document.getElementById('realName');
+        const nameFeedback = document.getElementById('nameFeedback');
+        const regex = /^[\u4e00-\u9fa5]{2,4}$/;
+
+        if (!regex.test(nameInput.value)) {
+            nameInput.classList.add('is-invalid');
+            nameFeedback.style.display = 'block';
+            return false;
+        } else {
+            nameInput.classList.remove('is-invalid');
+            nameFeedback.style.display = 'none';
+            return true;
+        }
+    }
+
+    // 验证身份证(简单版本)
+    function validateIdCard() {
+        const idCardInput = document.getElementById('idCard');
+        const idCardFeedback = document.getElementById('idCardFeedback');
+        const regex = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
+
+        if (!regex.test(idCardInput.value)) {
+            idCardInput.classList.add('is-invalid');
+            idCardFeedback.style.display = 'block';
+            return false;
+        } else {
+            idCardInput.classList.remove('is-invalid');
+            idCardFeedback.style.display = 'none';
+
+            // 如果身份证有效则自动填充出生日期
+            if (idCardInput.value.length === 18) {
+                const birthDate = idCardInput.value.substring(6, 14);
+                const formattedDate = `${birthDate.substring(0, 4)}-${birthDate.substring(4, 6)}-${birthDate.substring(6, 8)}`;
+                $('#datepicker').datepicker('setDate', formattedDate);
+            }
+            return true;
+        }
+    }
+
+    // 表单提交验证
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        if (!validateName() || !validateIdCard()) {
+            e.preventDefault();
+            alert('请检查表单中的错误');
+        } else {
+            // 使用AJAX提交表单以便处理完成后跳转
+            e.preventDefault();
+            const formData = $(this).serialize();
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    window.location.href = '/student/center';
+                },
+                error: function(xhr) {
+                    alert('保存失败: ' + (xhr.responseText || '服务器错误'));
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>

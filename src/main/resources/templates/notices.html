@@ -1,75 +1,146 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>消息通知</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9ff;
+            padding: 20px;
+        }
+        .unread {
+            background-color: #f8f9fa;
+            font-weight: 500;
+        }
+        .notice-type {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+        }
+        .system-type {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        .course-type {
+            background-color: #e6f7ff;
+            color: #0056b3;
+        }
+        .order-type {
+            background-color: #fff8e6;
+            color: #d48806;
+        }
+        .other-type {
+            background-color: #f6ffed;
+            color: #389e0d;
+        }
+        .ref-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        .notice-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .notice-header {
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-<!-- 导航栏 -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-    <div class="container">
-        <a class="navbar-brand" href="/">家教平台</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/"><i class="fas fa-home"></i>首页</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/select">老师咨询</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/courses">我的课程</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                        <span th:text="${student?.user?.realName ?: 'N/A'}"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/student/center">个人中心</a></li>
-                        <li><a class="dropdown-item" href="/student/profile">编辑资料</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/logout">退出登录</a></li>
-                    </ul>
-                </li>
-            </ul>
+<div class="notice-container">
+    <!-- 头部区域 -->
+    <div class="notice-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0"><i class="fas fa-bell me-2"></i>消息通知</h1>
+            <div>
+                <a href="/" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-home"></i> 返回首页
+                </a>
+                <form th:action="@{/notices/read-all}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check-circle"></i> 全部标记为已读
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="mt-3">
+            <span class="badge bg-info">
+                未读通知: <span th:text="${unreadCount}">0</span> 条
+            </span>
         </div>
     </div>
-</nav>
-<div class="container mt-5">
-    <h2>消息通知</h2>
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>标题</th>
-            <th>内容</th>
-            <th>类型</th>
-            <th>时间</th>
-            <th>状态</th>
-            <th>操作</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="notice : ${notices}">
-            <td th:text="${notice.title}"></td>
-            <td th:text="${notice.content}"></td>
-            <td th:text="${notice.type}"></td>
-            <td th:text="${#dates.format(notice.createTime, 'yyyy-MM-dd HH:mm')}"></td>
-            <td th:text="${notice.read ? '已读' : '未读'}"></td>
-            <td>
-                <form th:action="@{/notices/read}" method="post" th:if="${!notice.read}">
-                    <input type="hidden" name="noticeId" th:value="${notice.id}"/>
-                    <button type="submit" class="btn btn-success btn-sm">标记已读</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+
+    <!-- 通知列表 -->
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th width="10%">类型</th>
+                <th width="15%">标题</th>
+                <th width="30%">内容</th>
+                <th width="10%">关联信息</th>
+                <th width="15%">创建时间</th>
+                <th width="10%">状态</th>
+                <th width="10%">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="notice : ${notices}" th:class="${!notice.read} ? 'unread' : ''">
+                <td>
+                        <span th:classappend="${notice.type == '系统'} ? 'system-type' :
+                                             ${notice.type == '课程'} ? 'course-type' :
+                                             ${notice.type == '订单'} ? 'order-type' : 'other-type'"
+                              class="notice-type" th:text="${notice.type}"></span>
+                </td>
+                <td th:text="${notice.title}"></td>
+                <td th:text="${notice.content}"></td>
+                <td>
+                    <div th:if="${notice.refId != null}">
+                        <span class="ref-badge" th:text="${notice.refType}"></span>
+                        <small class="text-muted d-block" th:text="${notice.refId}"></small>
+                    </div>
+                    <span th:if="${notice.refId == null}" class="text-muted">无</span>
+                </td>
+                <td th:text="${#temporals.format(notice.createTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                        <span th:if="${notice.read}" class="text-success">
+                            <i class="fas fa-check-circle"></i> 已读
+                        </span>
+                    <span th:if="${!notice.read}" class="text-warning">
+                            <i class="fas fa-exclamation-circle"></i> 未读
+                        </span>
+                </td>
+                <td>
+                    <form th:action="@{/notices/read}" method="post" th:if="${!notice.read}">
+                        <input type="hidden" name="noticeId" th:value="${notice.id}"/>
+                        <button type="submit" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-check"></i> 标记已读
+                        </button>
+                    </form>
+                    <span th:if="${notice.read}" class="text-muted small">已处理</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 无通知提示 -->
+    <div th:if="${notices.isEmpty()}" class="alert alert-info mt-4 text-center">
+        <i class="fas fa-info-circle fa-lg me-2"></i> 暂无消息通知
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>

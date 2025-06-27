@@ -1,13 +1,18 @@
 package com.niit.service.impl;
 
+import com.niit.entity.IdCardValidator;
+import com.niit.entity.NameValidator;
 import com.niit.entity.Student;
 import com.niit.entity.User;
 import com.niit.repository.StudentRepository;
 import com.niit.repository.UserRepository;
 import com.niit.service.StudentProfileService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 @Service
 public class StudentProfileServiceImpl implements StudentProfileService {
@@ -33,16 +38,31 @@ public class StudentProfileServiceImpl implements StudentProfileService {
 
     @Override
     @Transactional
-    public Student completeProfile(Integer userId, String realName, String gender, String idCard, String province, String city, String grade, String needs, String avatarUrl) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在"));
-        user.setRealName(realName);
-        user.setGender(User.Gender.valueOf(gender));
-        user.setIdCard(idCard);
-        user.setProvince(province);
-        user.setCity(city);
-        userRepository.save(user);
+    public Student completeProfile(Integer userId, String realName, String gender, String idCard,
+                                   String nativePlaceName, Date birthday, String grade, String needs) {
+        if (!NameValidator.isValidChineseName(realName)) {
+            throw new RuntimeException("姓名必须为2-4个汉字");
+        }
 
-        return completeProfile(userId, grade, needs);
+        if (!IdCardValidator.isValid(idCard)) {
+            throw new RuntimeException("身份证号码不合法");
+        }
+
+        Student student = studentRepository.findByUserId(userId);
+        if (student == null) {
+            student = new Student();
+            student.setUserId(userId);
+        }
+
+        student.setRealName(realName);
+        student.setGender(gender);
+        student.setIdCard(idCard);
+        student.setNativePlaceName(nativePlaceName);
+        student.setBirthday(birthday);
+        student.setGrade(grade);
+        student.setNeeds(needs);
+
+        return studentRepository.save(student);
     }
 
     @Override

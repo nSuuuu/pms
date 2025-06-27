@@ -6,18 +6,25 @@ import lombok.Data;
 @Entity
 @Table(name = "hup_region")
 @Data
-public class HupRegion {
+public class Region {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private Integer pid;
     private String shortname;
     private String name;
-    private String merger_name;
+
+    @Column(name = "merger_name")
+    private String mergerName;
+
     private Integer level;
     private String pinyin;
     private String code;
-    private String zip_code;
+
+    @Column(name = "zip_code")
+    private String zipCode;
+    
     private String first;
     private String lng;
     private String lat;
