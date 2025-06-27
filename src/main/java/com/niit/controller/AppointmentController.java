@@ -46,7 +46,7 @@ public class AppointmentController {
         List<Appointment> appointments = appointmentRepository.findByStudentId(user.getId());
         // 查询所有老师信息
         Map<Integer, User> teacherMap = userRepository.findAllById(
-            appointments.stream().map(Appointment::getTeacherId).collect(Collectors.toSet())
+                appointments.stream().map(Appointment::getTeacherId).collect(Collectors.toSet())
         ).stream().collect(Collectors.toMap(User::getId, t -> t));
         // 新增：为每个预约查找是否有已支付订单
         Map<Integer, Boolean> paidOrderMap = new HashMap<>();
@@ -56,8 +56,8 @@ public class AppointmentController {
             Course course = null;
             for (Course c : courses) {
                 if (c.getTeacher().getId().equals(appt.getTeacherId()) &&
-                    c.getSubject().equals(appt.getSubject()) &&
-                    c.getStartTime().equals(appt.getStartTime())) {
+                        c.getSubject().equals(appt.getSubject()) &&
+                        c.getStartTime().equals(appt.getStartTime())) {
                     course = c;
                     break;
                 }
@@ -83,7 +83,7 @@ public class AppointmentController {
         List<Appointment> appointments = appointmentRepository.findByTeacherId(user.getId());
         // 查询所有学生信息
         Map<Integer, User> studentMap = userRepository.findAllById(
-            appointments.stream().map(Appointment::getStudentId).collect(Collectors.toSet())
+                appointments.stream().map(Appointment::getStudentId).collect(Collectors.toSet())
         ).stream().collect(Collectors.toMap(User::getId, s -> s));
         // 新增：为每个预约查找是否有已支付订单
         Map<Integer, Boolean> paidOrderMap = new HashMap<>();
@@ -123,11 +123,11 @@ public class AppointmentController {
         if (student == null) return "redirect:/login";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
         appointmentService.createAppointment(
-            student.getId(),
-            teacherId,
-            subject,
-            LocalDateTime.parse(startTime, formatter),
-            LocalDateTime.parse(endTime, formatter)
+                student.getId(),
+                teacherId,
+                subject,
+                LocalDateTime.parse(startTime, formatter),
+                LocalDateTime.parse(endTime, formatter)
         );
         return "redirect:/appointments/student";
     }
@@ -168,4 +168,5 @@ public class AppointmentController {
         }
         return "redirect:/appointments/teacher";
     }
+
 } 

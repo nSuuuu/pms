@@ -4,11 +4,13 @@ import com.niit.entity.Appointment;
 import com.niit.entity.User;
 import com.niit.entity.Teacher;
 import com.niit.entity.Student;
+import com.niit.entity.Order;
 import com.niit.repository.AppointmentRepository;
 import com.niit.repository.UserRepository;
 import com.niit.service.CourseService;
 import com.niit.service.TeacherService;
 import com.niit.service.StudentProfileService;
+import com.niit.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,6 +38,9 @@ public class CourseController {
     @Autowired
     private StudentProfileService studentProfileService;
 
+    @Autowired
+    private OrderService orderService;
+
     @GetMapping("/schedule")
     public String getSchedule(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
@@ -43,27 +48,18 @@ public class CourseController {
             return "redirect:/login";
         }
 
-        List<Appointment> appointments;
-        if (user.getRole() == 1) { // 老师
-            appointments = appointmentRepository.findByTeacherId(user.getId());
-        } else if (user.getRole() == 2) { // 学生
-            appointments = appointmentRepository.findByStudentId(user.getId());
-        } else {
-            appointments = null;
-        }
-
-        // 提取所有预约的开始日期（yyyy-MM-dd）
+        List<Order> orders = orderService.getOrdersByUserAndStatus(user.getId(), Order.OrderStatus.已支付);
+        // 提取所有订单的上课日期（假设Course有startTime字段）
         List<String> courseDates = new ArrayList<>();
-        if (appointments != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            for (Appointment a : appointments) {
-                if (a.getStartTime() != null) {
-                    courseDates.add(a.getStartTime().format(formatter));
-                }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        for (Order o : orders) {
+            if (o.getCourse() != null && o.getCourse().getStartTime() != null) {
+                courseDates.add(o.getCourse().getStartTime().format(formatter));
             }
         }
-        model.addAttribute("appointments", appointments);
+        model.addAttribute("orders", orders);
         model.addAttribute("courseDates", courseDates); // 传递给前端
+        model.addAttribute("role", user.getRole());
         return "schedule";
     }
 
