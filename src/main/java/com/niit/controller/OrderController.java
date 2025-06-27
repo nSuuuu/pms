@@ -43,8 +43,8 @@ public class OrderController {
         Course course = null;
         for (Course c : courses) {
             if (c.getTeacher().getId().equals(appointment.getTeacherId()) &&
-                c.getSubject().equals(appointment.getSubject()) &&
-                c.getStartTime().equals(appointment.getStartTime())) {
+                    c.getSubject().equals(appointment.getSubject()) &&
+                    c.getStartTime().equals(appointment.getStartTime())) {
                 course = c;
                 break;
             }
