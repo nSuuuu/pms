@@ -137,8 +137,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/select"><i class="fas fa-search"></i>家教咨询</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/orders/my"><i class="fas fa-file-invoice"></i>我的订单</a>
+                    <li class="nav-item" th:if="${session.user != null}">
+                        <a class="nav-link" th:href="${session.user.role == 1 ? '/orders/teacher' : '/orders/my'}">
+                            <i class="fas fa-file-invoice"></i>
+                            <span th:text="${session.user.role == 1 ? '收到的订单' : '我的订单'}"></span>
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/notices"><i class="fas fa-bell"></i>消息通知</a>

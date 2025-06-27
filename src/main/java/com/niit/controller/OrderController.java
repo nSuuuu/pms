@@ -126,4 +126,13 @@ public class OrderController {
         }
         return "redirect:/orders/my";
     }
+
+    @GetMapping("/orders/teacher")
+    public String teacherOrders(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        List<Order> orders = orderRepository.findByCourse_TeacherId(user.getId());
+        model.addAttribute("orders", orders);
+        return "teacher_orders";
+    }
 } 

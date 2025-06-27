@@ -85,8 +85,30 @@ public class AppointmentController {
         Map<Integer, User> studentMap = userRepository.findAllById(
             appointments.stream().map(Appointment::getStudentId).collect(Collectors.toSet())
         ).stream().collect(Collectors.toMap(User::getId, s -> s));
+        // 新增：为每个预约查找是否有已支付订单
+        Map<Integer, Boolean> paidOrderMap = new HashMap<>();
+        for (Appointment appt : appointments) {
+            // 查找课程
+            List<Course> courses = courseRepository.findByStudentId(appt.getStudentId());
+            Course course = null;
+            for (Course c : courses) {
+                if (c.getTeacher().getId().equals(appt.getTeacherId()) &&
+                    c.getSubject().equals(appt.getSubject()) &&
+                    c.getStartTime().equals(appt.getStartTime())) {
+                    course = c;
+                    break;
+                }
+            }
+            boolean paid = false;
+            if (course != null) {
+                List<Order> orders = orderRepository.findByCourseId(course.getId());
+                paid = orders.stream().anyMatch(o -> o.getStatus() == Order.OrderStatus.已支付);
+            }
+            paidOrderMap.put(appt.getId(), paid);
+        }
         model.addAttribute("appointments", appointments);
         model.addAttribute("studentMap", studentMap);
+        model.addAttribute("paidOrderMap", paidOrderMap);
         return "appointments_teacher";
     }
 

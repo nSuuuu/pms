@@ -2,6 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>收到的课程预约</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -120,16 +121,19 @@
             <td th:text="${appt.subject}"></td>
             <td th:text="${#temporals.format(appt.startTime, 'yyyy-MM-dd HH:mm')}"></td>
             <td th:text="${#temporals.format(appt.endTime, 'yyyy-MM-dd HH:mm')}"></td>
-            <td th:text="${appt.status}"></td>
+            <td>
+                <span th:if="${paidOrderMap[appt.id]}" class="text-success">已完成</span>
+                <span th:if="${!paidOrderMap[appt.id]}" th:text="${appt.status}"></span>
+            </td>
             <td>
                 <div class="d-flex gap-2">
                     <form th:action="@{/appointments/cancel}" method="post" th:if="${appt.status == 'PENDING'}">
                         <input type="hidden" name="appointmentId" th:value="${appt.id}"/>
-                        <button type="submit" class="btn btn-outline-secondary btn-sm">取消</button>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm" title="取消预约">取消</button>
                     </form>
                     <form th:action="@{/appointments/accept}" method="post" th:if="${appt.status == 'PENDING'}">
                         <input type="hidden" name="appointmentId" th:value="${appt.id}"/>
-                        <button type="submit" class="btn btn-primary btn-sm">同意</button>
+                        <button type="submit" class="btn btn-primary btn-sm" title="同意预约">同意</button>
                     </form>
                     <a class="btn btn-outline-secondary btn-sm" th:href="@{'/chat?toUserId=' + ${appt.studentId}}">发消息</a>
                 </div>
