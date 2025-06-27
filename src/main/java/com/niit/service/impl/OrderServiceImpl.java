@@ -74,4 +74,9 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
+
+    @Override
+    public List<Order> getOrdersByUserAndStatus(Integer userId, Order.OrderStatus status) {
+        return orderRepository.findByUserIdAndStatus(userId, status);
+    }
 } 

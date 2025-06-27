@@ -150,12 +150,12 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="appt : ${appointments != null} ? ${appointments} : ${#lists.list()} ">
-            <td th:text="${appt.subject}"></td>
-            <td th:text="${role == 2} ? appt.teacherName : (role == 1 ? appt.studentName : '')"></td>
-            <td th:text="${#temporals.format(appt.startTime, 'yyyy-MM-dd HH:mm')}"></td>
-            <td th:text="${#temporals.format(appt.endTime, 'yyyy-MM-dd HH:mm')}"></td>
-            <td th:text="${appt.status}"></td>
+        <tr th:each="order : ${orders != null} ? ${orders} : ${#lists.list()} ">
+            <td th:text="${order.course.subject}"></td>
+            <td th:text="${role == 2} ? order.course.teacher.user.realName : order.user.realName"></td>
+            <td th:text="${#temporals.format(order.course.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${#temporals.format(order.course.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${order.status}"></td>
         </tr>
         </tbody>
     </table>

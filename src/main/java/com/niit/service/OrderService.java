@@ -11,4 +11,5 @@ public interface OrderService {
     Order getOrderById(Integer orderId);
     List<Order> getOrdersByUser(Integer userId);
     List<Order> getAllOrders();
+    List<Order> getOrdersByUserAndStatus(Integer userId, Order.OrderStatus status);
 } 
