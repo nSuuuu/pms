@@ -143,7 +143,7 @@
         <thead>
         <tr>
             <th>科目</th>
-            <th th:text="${role} == 2 ? '老师' : (${role} == 1 ? '学生' : '对象')">对象</th>
+
             <th>开始时间</th>
             <th>结束时间</th>
             <th>状态</th>
@@ -152,7 +152,7 @@
         <tbody>
         <tr th:each="order : ${orders != null} ? ${orders} : ${#lists.list()} ">
             <td th:text="${order.course.subject}"></td>
-            <td th:text="${role == 2} ? order.course.teacher.user.realName : order.user.realName"></td>
+
             <td th:text="${#temporals.format(order.course.startTime, 'yyyy-MM-dd HH:mm')}"></td>
             <td th:text="${#temporals.format(order.course.endTime, 'yyyy-MM-dd HH:mm')}"></td>
             <td th:text="${order.status}"></td>

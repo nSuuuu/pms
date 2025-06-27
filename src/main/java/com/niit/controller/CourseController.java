@@ -49,6 +49,14 @@ public class CourseController {
         }
 
         List<Order> orders = orderService.getOrdersByUserAndStatus(user.getId(), Order.OrderStatus.已支付);
+        // 如果是学生，移除每个order.course中的teacher信息
+        if (user.getRole() == 2) {
+            for (Order o : orders) {
+                if (o.getCourse() != null) {
+                    o.getCourse().setTeacher(null);
+                }
+            }
+        }
         // 提取所有订单的上课日期（假设Course有startTime字段）
         List<String> courseDates = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
