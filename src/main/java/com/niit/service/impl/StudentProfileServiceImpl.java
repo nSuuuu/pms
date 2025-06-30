@@ -3,11 +3,9 @@ package com.niit.service.impl;
 import com.niit.entity.IdCardValidator;
 import com.niit.entity.NameValidator;
 import com.niit.entity.Student;
-import com.niit.entity.User;
 import com.niit.repository.StudentRepository;
 import com.niit.repository.UserRepository;
 import com.niit.service.StudentProfileService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -130,14 +130,12 @@
                 </div>
             </div>
 
-            <div class="mb-3 region-search">
+            <div class="mb-3">
                 <label class="form-label">籍贯</label>
-                <input type="text" class="form-control" id="nativePlaceSearch"
+                <input type="text" class="form-control" id="nativePlaceName"
                        name="nativePlaceName" th:value="${student?.nativePlaceName}" required
-                       placeholder="输入行政区划名称、编码或拼音首字母"
+                       placeholder="输入籍贯名称"
                        autocomplete="off">
-                <div class="region-results" id="regionResults"></div>
-                <input type="hidden" id="nativePlaceCode" name="nativePlaceCode" th:value="${student?.nativePlaceCode}">
             </div>
 
             <div class="mb-3">
@@ -311,27 +309,58 @@
     }
 
     // 表单提交验证
-    document.getElementById('profileForm').addEventListener('submit', function(e) {
-        if (!validateName() || !validateIdCard()) {
-            e.preventDefault();
-            alert('请检查表单中的错误');
-        } else {
-            // 使用AJAX提交表单以便处理完成后跳转
-            e.preventDefault();
-            const formData = $(this).serialize();
+    let isSubmitting = false;
 
-            $.ajax({
-                url: $(this).attr('action'),
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    window.location.href = '/student/center';
-                },
-                error: function(xhr) {
-                    alert('保存失败: ' + (xhr.responseText || '服务器错误'));
-                }
-            });
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        if (isSubmitting) {
+            alert('您的请求正在处理中，请勿重复提交');
+            return;
         }
+
+        isSubmitting = true;
+        $('#submitBtn').prop('disabled', true).text('保存中...');
+
+        // 验证逻辑
+        if (!validateName() || !validateIdCard()) {
+            alert('请检查表单中的错误');
+            isSubmitting = false;
+            $('#submitBtn').prop('disabled', false).text('保存');
+            return;
+        }
+
+        const formData = {
+            realName: $('#realName').val(),
+            gender: $('select[name="gender"]').val(),
+            idCard: $('#idCard').val(),
+            nativePlaceName: $('#nativePlaceName').val(),
+            birthday: $('#birthday').val(),
+            grade: $('select[name="grade"]').val(),
+            needs: $('textarea[name="needs"]').val() || ''
+        };
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: $.param(formData),
+            success: function() {
+                window.location.href = '/student/center';
+            },
+            error: function(xhr) {
+                let errorMsg = '保存失败: ';
+                if (xhr.status === 409) {  // 冲突状态码
+                    errorMsg += '数据已被其他操作修改，请刷新页面后重试';
+                } else {
+                    errorMsg += xhr.responseText || '服务器错误，请稍后重试';
+                }
+                alert(errorMsg);
+            },
+            complete: function() {
+                isSubmitting = false;
+                $('#submitBtn').prop('disabled', false).text('保存');
+            }
+        });
     });
 </script>
 </body>

@@ -31,7 +31,6 @@ public class Teacher {
     @Column(columnDefinition = "FLOAT DEFAULT 0.0")
     private Float score;
 
-    // 添加缺失的字段
     @Column(columnDefinition = "TEXT")
     private String experience;
 
@@ -40,4 +39,7 @@ public class Teacher {
 
     @Column(name = "price")
     private Integer price;
+
+    @Column(name = "native_place_name", length = 255)
+    private String nativePlaceName;
 }

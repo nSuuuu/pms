@@ -122,4 +122,7 @@ public class AuthService {
 
     public User getUserById(Integer id) {
     return userRepository.findById(id).orElse(null);}
+
+    public void updateUserProfile(Integer id, String realName, String gender, String idCard, String province, String city) {
+    }
 }

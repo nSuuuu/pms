@@ -1,10 +1,14 @@
 package com.niit.service;
 
 import com.niit.entity.Teacher;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface TeacherProfileService {
-    Teacher completeProfile(Integer userId, String avatar, String subjects, String education, String style, Float score);
+    Teacher completeProfile(Integer userId, String subjects, String education,
+                            String style, String experience, String gradeLevel,
+                            Integer price, String nativePlaceName);
 
-    Teacher completeProfile(Integer userId, String realName, String gender, String idCard, String province, String city, String avatarUrl, String subjects, String education, String style);
+    Teacher updateAvatar(Integer userId, MultipartFile avatarFile);
+
     Teacher getProfile(Integer userId);
-} 
+}
