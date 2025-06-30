@@ -161,7 +161,7 @@
                             <span th:text="${course.status}"></span>
                         </p>
                         <p th:if="${course.student != null}">
-                            <strong>学生：</strong> <span th:text="${course.student.user.realName}"></span>
+                            <strong>学生：</strong> <span th:text="${course.student.realName}"></span>
                         </p>
                         <a th:href="@{/course/detail/{id}(id=${course.id})}" class="btn btn-sm btn-outline-primary">查看详情</a>
                     </div>

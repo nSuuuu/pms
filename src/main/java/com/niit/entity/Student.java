@@ -38,4 +38,6 @@ public class Student {
 
     @Column(name = "birthday")
     private Date birthday;
+    @Version
+    private Integer version;
 }

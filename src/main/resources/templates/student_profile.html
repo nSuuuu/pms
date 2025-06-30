@@ -314,22 +314,25 @@
     document.getElementById('profileForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        // 防止重复提交
         if (isSubmitting) {
             alert('您的请求正在处理中，请勿重复提交');
             return;
         }
 
-        isSubmitting = true;
-        $('#submitBtn').prop('disabled', true).text('保存中...');
-
-        // 验证逻辑
+        // 表单验证
         if (!validateName() || !validateIdCard()) {
-            alert('请检查表单中的错误');
-            isSubmitting = false;
-            $('#submitBtn').prop('disabled', false).text('保存');
+            // 高亮显示错误字段
+            $('.is-invalid').first().focus();
             return;
         }
 
+        // 准备提交
+        isSubmitting = true;
+        const submitBtn = $('#submitBtn');
+        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 保存中...');
+
+        // 获取表单数据
         const formData = {
             realName: $('#realName').val(),
             gender: $('select[name="gender"]').val(),
@@ -340,28 +343,116 @@
             needs: $('textarea[name="needs"]').val() || ''
         };
 
+        // 添加CSRF令牌
+        const csrfToken = $('meta[name="_csrf"]').attr('content');
+        const csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+        // 创建URL编码的数据
+        const formBody = Object.keys(formData).map(key =>
+            encodeURIComponent(key) + '=' + encodeURIComponent(formData[key])
+        ).join('&');
+
         $.ajax({
             url: $(this).attr('action'),
             type: 'POST',
-            data: $.param(formData),
-            success: function() {
-                window.location.href = '/student/center';
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            data: formBody,
+            beforeSend: function(xhr) {
+                if (csrfHeader && csrfToken) {
+                    xhr.setRequestHeader(csrfHeader, csrfToken);
+                }
             },
-            error: function(xhr) {
+            success: function(response) {
+                showSuccessMessage('资料保存成功', () => {
+                    window.location.href = '/student/center';
+                });
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error('AJAX Error:', textStatus, errorThrown);
+                console.error('Response:', xhr.responseText);
+
                 let errorMsg = '保存失败: ';
-                if (xhr.status === 409) {  // 冲突状态码
-                    errorMsg += '数据已被其他操作修改，请刷新页面后重试';
-                } else {
+
+                try {
+                    // 尝试解析JSON错误响应
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    errorMsg += errorResponse.message || errorResponse.error || '未知错误';
+
+                    // 如果是字段验证错误，显示具体字段错误
+                    if (errorResponse.errors) {
+                        errorMsg += '\n\n';
+                        Object.keys(errorResponse.errors).forEach(field => {
+                            errorMsg += `${field}: ${errorResponse.errors[field].join(', ')}\n`;
+                        });
+                    }
+                } catch (e) {
+                    // 如果不是JSON响应，使用原始响应文本
                     errorMsg += xhr.responseText || '服务器错误，请稍后重试';
                 }
-                alert(errorMsg);
+
+                // 根据状态码细化错误信息
+                if (xhr.status === 400) {
+                    errorMsg = '请求数据不合法: ' + errorMsg;
+                } else if (xhr.status === 409) {
+                    errorMsg = '数据已被其他操作修改，请刷新页面后重新提交';
+                } else if (xhr.status === 401) {
+                    errorMsg = '登录已过期，请重新登录';
+                    window.location.href = '/login';
+                    return;
+                }
+
+                showErrorMessage(errorMsg);
+
+                // 如果是冲突错误，刷新页面
+                if (xhr.status === 409) {
+                    setTimeout(() => window.location.reload(), 2000);
+                }
             },
             complete: function() {
                 isSubmitting = false;
-                $('#submitBtn').prop('disabled', false).text('保存');
+                submitBtn.prop('disabled', false).text('保存');
             }
         });
     });
+
+    // 显示成功消息的函数
+    function showSuccessMessage(message, callback) {
+        const toast = $(`
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header bg-success text-white">
+                    <strong class="me-auto">成功</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">${message}</div>
+            </div>
+        </div>
+    `);
+
+        $('body').append(toast);
+        setTimeout(() => {
+            toast.remove();
+            if (callback) callback();
+        }, 1500);
+    }
+
+    // 显示错误消息的函数
+    function showErrorMessage(message) {
+        const toast = $(`
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header bg-danger text-white">
+                    <strong class="me-auto">错误</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" style="white-space: pre-line;">${message}</div>
+            </div>
+        </div>
+    `);
+
+        $('body').append(toast);
+        setTimeout(() => toast.remove(), 5000);
+    }
 </script>
 </body>
 </html>

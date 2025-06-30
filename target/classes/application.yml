@@ -42,5 +42,8 @@ logging:
     com.example.drugmanagement: debug
     org.thymeleaf: DEBUG
 
+file:
+  upload-dir: /path/to/upload/directory
+
 
 
