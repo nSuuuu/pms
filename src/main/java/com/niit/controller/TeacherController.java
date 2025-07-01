@@ -1,6 +1,5 @@
 package com.niit.controller;
 
-import com.niit.dto.TeacherInfoDTO;
 import com.niit.entity.Course;
 import com.niit.entity.Teacher;
 import com.niit.entity.User;
@@ -8,8 +7,7 @@ import com.niit.repository.CourseRepository;
 import com.niit.service.AuthService;
 import com.niit.service.TeacherProfileService;
 import com.niit.service.TeacherService;
-import com.niit.utils.BusinessException;
-import com.niit.utils.IDCardUtil;
+import com.niit.utils.IdCardValidator;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -45,6 +43,7 @@ public class TeacherController {
     }
 
     @PostMapping("/profile")
+    @ResponseBody
     public String updateTeacherProfile(
             @RequestParam String realName,
             @RequestParam String gender,
@@ -57,9 +56,7 @@ public class TeacherController {
             @RequestParam String experience,
             @RequestParam String gradeLevel,
             @RequestParam Integer price,
-            @RequestParam String nativePlaceName,
-            HttpSession session,
-            Model model) {
+            HttpSession session) {
 
         User user = (User) session.getAttribute("user");
         if (user == null || user.getRole() != 1) {
@@ -67,16 +64,14 @@ public class TeacherController {
         }
 
         // ID card validation
-        if (!IDCardUtil.validateIDCard(idCard)) {
-            model.addAttribute("error", "身份证号格式不正确");
-            return "teacher_profile";
+        if (!IdCardValidator.isValid(idCard)) {
+            return "身份证号格式不正确";
         }
 
         // Check if ID card is being changed
-        if (!user.getIdCard().equals(idCard)) {
+        if (!idCard.equals(user.getIdCard())) {
             if (authService.isIdCardExists(idCard, user.getId())) {
-                model.addAttribute("error", "该身份证号已被其他用户使用");
-                return "teacher_profile";
+                return "该身份证号已被其他用户使用";
             }
         }
 
@@ -91,19 +86,10 @@ public class TeacherController {
                 style,
                 experience,
                 gradeLevel,
-                price,
-                nativePlaceName
+                price
         );
 
-        model.addAttribute("success", "资料更新成功");
-
-        // Refresh user data
-        user = authService.getUserById(user.getId());
-        session.setAttribute("user", user);
-        model.addAttribute("user", user);
-        model.addAttribute("teacher", teacherProfileService.getProfile(user.getId()));
-
-        return "teacher_profile";
+        return "success";
     }
 
     @PostMapping("/avatar")

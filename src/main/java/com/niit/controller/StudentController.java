@@ -2,7 +2,10 @@ package com.niit.controller;
 
 import com.niit.entity.Student;
 import com.niit.entity.User;
+import com.niit.repository.UserRepository;
+import com.niit.service.AuthService;
 import com.niit.service.StudentProfileService;
+import com.niit.utils.IdCardValidator;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +24,12 @@ public class StudentController {
     @Autowired
     private StudentProfileService studentProfileService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private AuthService authService;
+
     @GetMapping("/center")
     public String studentCenter(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
@@ -30,6 +39,7 @@ public class StudentController {
 
         Student student = studentProfileService.getProfile(user.getId());
         model.addAttribute("student", student);
+        model.addAttribute("user", user);
         return "student_center";
     }
 
@@ -42,6 +52,7 @@ public class StudentController {
 
         Student student = studentProfileService.getProfile(user.getId());
         model.addAttribute("student", student);
+        model.addAttribute("user", user);
         return "student_profile";
     }
 
@@ -51,7 +62,8 @@ public class StudentController {
             @RequestParam String realName,
             @RequestParam String gender,
             @RequestParam String idCard,
-            @RequestParam String nativePlaceName,
+            @RequestParam String province,
+            @RequestParam String city,
             @RequestParam String birthday,
             @RequestParam String grade,
             @RequestParam String needs,
@@ -63,26 +75,36 @@ public class StudentController {
         }
 
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date birthDate = sdf.parse(birthday);
+            // 身份证校验
+            if (!IdCardValidator.isValid(idCard)) {
+                return ResponseEntity.badRequest().body("\"身份证号码不合法\"");
+            }
 
-            Student student = studentProfileService.completeProfile(
-                    user.getId(),
-                    realName,
-                    gender,
-                    idCard,
-                    nativePlaceName,
-                    birthDate,
-                    grade,
-                    needs
-            );
+            String idCardBirthday = IdCardValidator.getFormattedBirthday(idCard);
+            if (!idCardBirthday.equals(birthday)) {
+                return ResponseEntity.badRequest().body("\"身份证出生日期与填写的出生日期不一致\"");
+            }
 
-            // 更新session中的用户信息
+            // 提取性别并验证是否一致
+            String idCardGender = IdCardValidator.getGenderFromIdCard(idCard);
+            if (!idCardGender.equalsIgnoreCase(gender)) {
+                return ResponseEntity.badRequest().body("\"身份证性别与选择性别不符\"");
+            }
+
+            // 使用 AuthService 更新用户和学生信息
+            authService.updateStudentProfile(user.getId(), realName, gender, idCard, province, city, grade, needs);
+
+            // 更新 session 中的用户和学生信息
+            user = userRepository.findById(user.getId()).orElseThrow();
+            Student student = studentProfileService.getProfile(user.getId());
+            session.setAttribute("user", user);
             session.setAttribute("student", student);
 
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body("success");
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("\"保存失败：" + e.getMessage() + "\"");
         }
     }
 }

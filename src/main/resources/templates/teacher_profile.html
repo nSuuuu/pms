@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>老师资料完善</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .profile-dialog {
             max-width: 700px;
@@ -62,9 +63,64 @@
             height: 100%;
             cursor: pointer;
         }
+        .is-invalid {
+            border-color: #dc3545;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            display: none;
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        .form-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
     </style>
 </head>
 <body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="/">家教平台</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-home"></i>首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/select">家教咨询</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/courses">我的课程</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <span th:text="${user?.realName ?: '用户'}">用户</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/teacher/center">个人中心</a></li>
+                        <li><a class="dropdown-item" href="/teacher/profile">编辑资料</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">退出登录</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
 <div class="container">
     <div class="profile-dialog">
         <div class="profile-header">
@@ -88,120 +144,275 @@
             </div>
         </form>
 
-        <form action="/teacher/profile" method="post">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">真实姓名</label>
-                    <input type="text" class="form-control" name="realName"
-                           th:value="${user.realName}" required>
-                </div>
+        <form id="profileForm" action="/teacher/profile" method="post">
+            <!-- 基本信息部分 -->
+            <div class="form-section">
+                <h5><i class="fas fa-user me-2"></i>基本信息</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">真实姓名</label>
+                        <input type="text" class="form-control" id="realName" name="realName"
+                               th:value="${user.realName}" required
+                               pattern="[\u4e00-\u9fa5]{2,4}"
+                               oninput="validateName()">
+                        <small class="text-muted">请输入2-4个汉字</small>
+                        <div class="invalid-feedback" id="nameFeedback">
+                            姓名必须为2-4个汉字
+                        </div>
+                    </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">性别</label>
-                    <select class="form-select" name="gender" required>
-                        <option value="男" th:selected="${user.gender == '男'}">男</option>
-                        <option value="女" th:selected="${user.gender == '女'}">女</option>
-                    </select>
-                </div>
+                    <div class="col-md-6">
+                        <label class="form-label">性别</label>
+                        <select class="form-select" id="gender" name="gender" required>
+                            <option value="男" th:selected="${user.gender == '男'}">男</option>
+                            <option value="女" th:selected="${user.gender == '女'}">女</option>
+                        </select>
+                    </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">身份证号</label>
-                    <input type="text" class="form-control" name="idCard"
-                           th:value="${user.idCard}" required>
-                </div>
+                    <div class="col-md-6">
+                        <label class="form-label">身份证号</label>
+                        <input type="text" class="form-control" id="idCard" name="idCard"
+                               th:value="${user.idCard}" required
+                               maxlength="18"
+                               oninput="validateIdCard()">
+                        <div class="invalid-feedback" id="idCardFeedback">
+                            请输入有效的18位身份证号码
+                        </div>
+                    </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">学历</label>
-                    <input type="text" class="form-control" name="education"
-                           th:value="${teacher?.education}" placeholder="如：本科、硕士" required>
-                </div>
+                    <div class="col-md-6">
+                        <label class="form-label">学历</label>
+                        <input type="text" class="form-control" name="education"
+                               th:value="${teacher?.education}" placeholder="如：本科、硕士" required>
+                    </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">省份</label>
-                    <input type="text" class="form-control" name="province"
-                           th:value="${user.province}" required>
-                </div>
+                    <div class="col-md-6">
+                        <label class="form-label">省份</label>
+                        <select class="form-select" id="province" name="province" required>
+                            <option value="">请选择省份</option>
+                            <option value="北京市" th:selected="${user?.province == '北京市'}">北京市</option>
+                            <option value="天津市" th:selected="${user?.province == '天津市'}">天津市</option>
+                            <option value="河北省" th:selected="${user?.province == '河北省'}">河北省</option>
+                            <option value="山西省" th:selected="${user?.province == '山西省'}">山西省</option>
+                            <option value="内蒙古自治区" th:selected="${user?.province == '内蒙古自治区'}">内蒙古自治区</option>
+                            <option value="辽宁省" th:selected="${user?.province == '辽宁省'}">辽宁省</option>
+                            <option value="吉林省" th:selected="${user?.province == '吉林省'}">吉林省</option>
+                            <option value="黑龙江省" th:selected="${user?.province == '黑龙江省'}">黑龙江省</option>
+                            <option value="上海市" th:selected="${user?.province == '上海市'}">上海市</option>
+                            <option value="江苏省" th:selected="${user?.province == '江苏省'}">江苏省</option>
+                            <option value="浙江省" th:selected="${user?.province == '浙江省'}">浙江省</option>
+                            <option value="安徽省" th:selected="${user?.province == '安徽省'}">安徽省</option>
+                            <option value="福建省" th:selected="${user?.province == '福建省'}">福建省</option>
+                            <option value="江西省" th:selected="${user?.province == '江西省'}">江西省</option>
+                            <option value="山东省" th:selected="${user?.province == '山东省'}">山东省</option>
+                            <option value="河南省" th:selected="${user?.province == '河南省'}">河南省</option>
+                            <option value="湖北省" th:selected="${user?.province == '湖北省'}">湖北省</option>
+                            <option value="湖南省" th:selected="${user?.province == '湖南省'}">湖南省</option>
+                            <option value="广东省" th:selected="${user?.province == '广东省'}">广东省</option>
+                            <option value="广西壮族自治区" th:selected="${user?.province == '广西壮族自治区'}">广西壮族自治区</option>
+                            <option value="海南省" th:selected="${user?.province == '海南省'}">海南省</option>
+                            <option value="重庆市" th:selected="${user?.province == '重庆市'}">重庆市</option>
+                            <option value="四川省" th:selected="${user?.province == '四川省'}">四川省</option>
+                            <option value="贵州省" th:selected="${user?.province == '贵州省'}">贵州省</option>
+                            <option value="云南省" th:selected="${user?.province == '云南省'}">云南省</option>
+                            <option value="西藏自治区" th:selected="${user?.province == '西藏自治区'}">西藏自治区</option>
+                            <option value="陕西省" th:selected="${user?.province == '陕西省'}">陕西省</option>
+                            <option value="甘肃省" th:selected="${user?.province == '甘肃省'}">甘肃省</option>
+                            <option value="青海省" th:selected="${user?.province == '青海省'}">青海省</option>
+                            <option value="宁夏回族自治区" th:selected="${user?.province == '宁夏回族自治区'}">宁夏回族自治区</option>
+                            <option value="新疆维吾尔自治区" th:selected="${user?.province == '新疆维吾尔自治区'}">新疆维吾尔自治区</option>
+                            <option value="台湾省" th:selected="${user?.province == '台湾省'}">台湾省</option>
+                            <option value="香港特别行政区" th:selected="${user?.province == '香港特别行政区'}">香港特别行政区</option>
+                            <option value="澳门特别行政区" th:selected="${user?.province == '澳门特别行政区'}">澳门特别行政区</option>
+                        </select>
+                    </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">城市</label>
-                    <input type="text" class="form-control" name="city"
-                           th:value="${user.city}" required>
-                </div>
+                    <div class="col-md-6">
+                        <label class="form-label">城市</label>
+                        <input type="text" class="form-control" id="city" name="city"
+                               th:value="${user.city}" required>
+                    </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">籍贯</label>
-                    <input type="text" class="form-control" name="nativePlaceName"
-                           th:value="${teacher?.nativePlaceName}" placeholder="如：浙江杭州" required>
-                </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">收费标准(元/小时)</label>
-                    <input type="number" class="form-control" name="price"
-                           th:value="${teacher?.price}" required>
+                    <div class="col-md-6">
+                        <label class="form-label">收费标准(元/小时)</label>
+                        <input type="number" class="form-control" name="price"
+                               th:value="${teacher?.price}" required min="0">
+                    </div>
                 </div>
+            </div>
 
-                <div class="col-12">
-                    <label class="form-label">擅长科目</label>
-                    <input type="text" class="form-control" name="subjects"
-                           th:value="${teacher?.subjects}" placeholder="如：数学、英语" required>
-                </div>
+            <!-- 教学信息部分 -->
+            <div class="form-section">
+                <h5><i class="fas fa-chalkboard-teacher me-2"></i>教学信息</h5>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">擅长科目</label>
+                        <input type="text" class="form-control" name="subjects"
+                               th:value="${teacher?.subjects}" placeholder="如：数学、英语" required>
+                    </div>
 
-                <div class="col-12">
-                    <label class="form-label">教学年级</label>
-                    <select class="form-select" name="gradeLevel" required>
-                        <option value="小学" th:selected="${teacher?.gradeLevel == '小学'}">小学</option>
-                        <option value="初中" th:selected="${teacher?.gradeLevel == '初中'}">初中</option>
-                        <option value="高中" th:selected="${teacher?.gradeLevel == '高中'}">高中</option>
-                        <option value="大学" th:selected="${teacher?.gradeLevel == '大学'}">大学</option>
-                    </select>
-                </div>
+                    <div class="col-12">
+                        <label class="form-label">教学年级</label>
+                        <select class="form-select" name="gradeLevel" required>
+                            <option value="小学" th:selected="${teacher?.gradeLevel == '小学'}">小学</option>
+                            <option value="初中" th:selected="${teacher?.gradeLevel == '初中'}">初中</option>
+                            <option value="高中" th:selected="${teacher?.gradeLevel == '高中'}">高中</option>
+                            <option value="大学" th:selected="${teacher?.gradeLevel == '大学'}">大学</option>
+                        </select>
+                    </div>
 
-                <div class="col-12">
-                    <label class="form-label">教学经验</label>
-                    <textarea class="form-control" name="experience" rows="3"
-                              th:text="${teacher?.experience}"></textarea>
-                </div>
+                    <div class="col-12">
+                        <label class="form-label">教学经验</label>
+                        <textarea class="form-control" name="experience" rows="3"
+                                  th:text="${teacher?.experience}"></textarea>
+                    </div>
 
-                <div class="col-12">
-                    <label class="form-label">教学风格</label>
-                    <textarea class="form-control" name="style" rows="3"
-                              th:text="${teacher?.style}"></textarea>
+                    <div class="col-12">
+                        <label class="form-label">教学风格</label>
+                        <textarea class="form-control" name="style" rows="3"
+                                  th:text="${teacher?.style}"></textarea>
+                    </div>
                 </div>
+            </div>
 
-                <div class="col-12 mt-3">
-                    <button type="submit" class="btn btn-primary btn-submit">保存资料</button>
-                </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-submit">保存资料</button>
             </div>
         </form>
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    // 实时预览头像
-    document.getElementById('avatarInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                document.getElementById('avatarPreview').src = event.target.result;
-
-                // 自动提交表单
-                const form = document.getElementById('avatarForm');
-                const formData = new FormData(form);
-
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData
-                }).then(response => {
-                    if (response.ok) {
-                        window.location.reload();
-                    }
-                });
-            };
-            reader.readAsDataURL(file);
+    $(document).ready(function () {
+        // Toast自动隐藏
+        const toastEl = document.querySelector('.toast');
+        if (toastEl) {
+            setTimeout(() => {
+                const toast = new bootstrap.Toast(toastEl);
+                toast.hide();
+            }, 3000);
         }
+
+        // 身份证自动填充出生日期和性别
+        $('#idCard').on('change', function () {
+            validateIdCard();
+        });
+
+        // 表单提交时的验证与AJAX请求统一处理
+        $('#profileForm').on('submit', function (e) {
+            e.preventDefault(); // 阻止默认提交
+
+            // 先执行前端验证函数
+            const isNameValid = validateName();
+            const isIdCardValid = validateIdCard();
+
+            if (!isNameValid || !isIdCardValid) {
+                alert('请检查表单中的错误');
+                return;
+            }
+
+            // 所有验证通过，发送AJAX请求
+            const formData = $(this).serialize();
+
+            $.post('/teacher/profile', formData, function (response) {
+                if (response === 'success') {
+                    window.location.href = '/teacher/center'; // 跳转到老师中心
+                } else {
+                    alert(response); // 显示错误信息
+                }
+            }).fail(function (xhr) {
+                try {
+                    const error = JSON.parse(xhr.responseText);
+                    alert(error || "保存失败，请重试");
+                } catch (e) {
+                    alert("保存失败，请检查网络或输入");
+                }
+            });
+        });
+
+        // 实时预览头像
+        document.getElementById('avatarInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('avatarPreview').src = event.target.result;
+
+                    // 自动提交表单
+                    const form = document.getElementById('avatarForm');
+                    const formData = new FormData(form);
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    }).then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     });
+
+    // 验证中文姓名(2-4个字符)
+    function validateName() {
+        const nameInput = document.getElementById('realName');
+        const nameFeedback = document.getElementById('nameFeedback');
+        const regex = /^[\u4e00-\u9fa5]{2,4}$/;
+
+        if (!regex.test(nameInput.value)) {
+            nameInput.classList.add('is-invalid');
+            nameFeedback.style.display = 'block';
+            return false;
+        } else {
+            nameInput.classList.remove('is-invalid');
+            nameFeedback.style.display = 'none';
+            return true;
+        }
+    }
+
+    // 验证身份证(完整验证)
+    function validateIdCard() {
+        const idCardInput = document.getElementById('idCard');
+        const idCardFeedback = document.getElementById('idCardFeedback');
+        const genderSelect = document.getElementById('gender');
+
+        // 清除错误状态
+        idCardInput.classList.remove('is-invalid');
+        idCardFeedback.style.display = 'none';
+
+        const idCard = idCardInput.value.trim();
+        if (!idCard || idCard.length !== 18) {
+            showInvalid("请输入18位身份证号码");
+            return false;
+        }
+
+        // 正则校验
+        const regex = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
+        if (!regex.test(idCard)) {
+            showInvalid("身份证号码格式不正确");
+            return false;
+        }
+
+        // 获取性别
+        const genderDigit = parseInt(idCard.charAt(16));
+        const gender = genderDigit % 2 === 1 ? "男" : "女";
+        genderSelect.value = gender;
+
+        return true;
+
+        function showInvalid(msg) {
+            idCardInput.classList.add('is-invalid');
+            idCardFeedback.style.display = 'block';
+            idCardFeedback.textContent = msg;
+        }
+    }
 </script>
 </body>
 </html>

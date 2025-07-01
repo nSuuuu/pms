@@ -1,3 +1,4 @@
+// Teacher.java
 package com.niit.entity;
 
 import jakarta.persistence.*;
@@ -39,7 +40,4 @@ public class Teacher {
 
     @Column(name = "price")
     private Integer price;
-
-    @Column(name = "native_place_name", length = 255)
-    private String nativePlaceName;
 }
